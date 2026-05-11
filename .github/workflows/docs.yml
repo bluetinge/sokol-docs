@@ -19,13 +19,22 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      DOXYGEN_VERSION: 1.16.1
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Doxygen
+      - name: Install build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y doxygen
+          sudo apt-get install -y curl tar
+
+      - name: Install pinned Doxygen
+        run: |
+          curl -L "https://github.com/doxygen/doxygen/releases/download/Release_${DOXYGEN_VERSION//./_}/doxygen-${DOXYGEN_VERSION}.linux.bin.tar.gz" -o doxygen.tar.gz
+          tar -xzf doxygen.tar.gz
+          sudo install "doxygen-${DOXYGEN_VERSION}/bin/doxygen" /usr/local/bin/doxygen
+          doxygen --version
 
       - name: Prepare output directory
         run: mkdir -p build
