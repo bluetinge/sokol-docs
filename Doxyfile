@@ -145,8 +145,8 @@ HTML_HEADER            =
 HTML_FOOTER            =
 HTML_STYLESHEET        =
 HTML_EXTRA_STYLESHEET  = docs/theme/doxygen-awesome.css
-HTML_EXTRA_FILES       = docs/theme/docs-custom.css \
-                         docs/theme/docs-custom.js
+# HTML_EXTRA_FILES       = docs/theme/docs-custom.css \
+#                          docs/theme/docs-custom.js
 HTML_COLORSTYLE        = LIGHT
 HTML_COLORSTYLE_HUE    = 220
 HTML_COLORSTYLE_SAT    = 100
