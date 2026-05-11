@@ -2,7 +2,10 @@
 #define SOKOL_AUDIO_IMPL
 #endif
 #ifndef SOKOL_AUDIO_INCLUDED
-/*
+/*!
+    @file sokol_audio.h
+    @brief Cross-platform streaming audio API.
+
     sokol_audio.h -- cross-platform audio-streaming API
 
     Project URL: https://github.com/floooh/sokol

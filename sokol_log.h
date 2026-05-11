@@ -2,7 +2,10 @@
 #define SOKOL_LOG_IMPL
 #endif
 #ifndef SOKOL_LOG_INCLUDED
-/*
+/*!
+    @file sokol_log.h
+    @brief Standard logging callback for sokol headers.
+
     sokol_log.h -- common logging callback for sokol headers
 
     Project URL: https://github.com/floooh/sokol

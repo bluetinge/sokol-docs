@@ -2,7 +2,10 @@
 #define SOKOL_ARGS_IMPL
 #endif
 #ifndef SOKOL_ARGS_INCLUDED
-/*
+/*!
+    @file sokol_args.h
+    @brief Cross-platform key/value argument parsing for native and web apps.
+
     sokol_args.h    -- cross-platform key/value arg-parsing for web and native
 
     Project URL: https://github.com/floooh/sokol

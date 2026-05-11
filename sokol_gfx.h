@@ -2,7 +2,10 @@
 #define SOKOL_GFX_IMPL
 #endif
 #ifndef SOKOL_GFX_INCLUDED
-/*
+/*!
+    @file sokol_gfx.h
+    @brief Simple cross-platform rendering API wrapper.
+
     sokol_gfx.h -- simple 3D API wrapper
 
     Project URL: https://github.com/floooh/sokol
@@ -5104,6 +5107,8 @@ typedef struct sg_desc {
     uint32_t _end_canary;
 } sg_desc;
 
+/** @name Setup And Diagnostics */
+/** @{ */
 /**
  * @brief Initialize sokol-gfx with the provided descriptor.
  *
@@ -5129,7 +5134,9 @@ SOKOL_GFX_API_DECL void sg_pop_debug_group(void);
 SOKOL_GFX_API_DECL bool sg_add_commit_listener(sg_commit_listener listener);
 /** @brief Remove a previously registered commit listener. */
 SOKOL_GFX_API_DECL bool sg_remove_commit_listener(sg_commit_listener listener);
-
+/** @} */
+/** @name Resource Creation And Updates */
+/** @{ */
 /** @brief Create and initialize a buffer resource. */
 SOKOL_GFX_API_DECL sg_buffer sg_make_buffer(const sg_buffer_desc* desc);
 /** @brief Create and initialize an image resource. */
@@ -5169,7 +5176,9 @@ SOKOL_GFX_API_DECL int sg_append_buffer(sg_buffer buf, const sg_range* data);
 SOKOL_GFX_API_DECL bool sg_query_buffer_overflow(sg_buffer buf);
 /** @brief Predict whether appending `size` bytes would overflow the buffer this frame. */
 SOKOL_GFX_API_DECL bool sg_query_buffer_will_overflow(sg_buffer buf, size_t size);
-
+/** @} */
+/** @name Render And Compute */
+/** @{ */
 /**
  * @brief Begin a render pass or compute pass.
  *
@@ -5211,7 +5220,9 @@ SOKOL_GFX_API_DECL void sg_dispatch(int num_groups_x, int num_groups_y, int num_
 SOKOL_GFX_API_DECL void sg_end_pass(void);
 /** @brief Submit the current frame to the backend. */
 SOKOL_GFX_API_DECL void sg_commit(void);
-
+/** @} */
+/** @name Queries */
+/** @{ */
 /** @brief Return a copy of the resolved setup descriptor. */
 SOKOL_GFX_API_DECL sg_desc sg_query_desc(void);
 /** @brief Return the active backend selected at compile time. */
@@ -5268,8 +5279,9 @@ SOKOL_GFX_API_DECL int sg_query_image_sample_count(sg_image img);
 SOKOL_GFX_API_DECL sg_view_type sg_query_view_type(sg_view view);
 SOKOL_GFX_API_DECL sg_image sg_query_view_image(sg_view view);
 SOKOL_GFX_API_DECL sg_buffer sg_query_view_buffer(sg_view view);
-
-// separate resource allocation and initialization (for async setup)
+/** @} */
+/** @name Async Resource Initialization */
+/** @{ */
 SOKOL_GFX_API_DECL sg_buffer sg_alloc_buffer(void);
 SOKOL_GFX_API_DECL sg_image sg_alloc_image(void);
 SOKOL_GFX_API_DECL sg_sampler sg_alloc_sampler(void);
@@ -5300,12 +5312,14 @@ SOKOL_GFX_API_DECL void sg_fail_sampler(sg_sampler smp);
 SOKOL_GFX_API_DECL void sg_fail_shader(sg_shader shd);
 SOKOL_GFX_API_DECL void sg_fail_pipeline(sg_pipeline pip);
 SOKOL_GFX_API_DECL void sg_fail_view(sg_view view);
-
-// frame and total stats
+/** @} */
+/** @name Stats */
+/** @{ */
 SOKOL_GFX_API_DECL void sg_enable_stats(void);
 SOKOL_GFX_API_DECL void sg_disable_stats(void);
 SOKOL_GFX_API_DECL bool sg_stats_enabled(void);
 SOKOL_GFX_API_DECL sg_stats sg_query_stats(void);
+/** @} */
 
 /* Backend-specific structs and functions, these may come in handy for mixing
    sokol-gfx rendering with 'native backend' rendering functions.

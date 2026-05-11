@@ -2,7 +2,10 @@
 #define SOKOL_TIME_IMPL
 #endif
 #ifndef SOKOL_TIME_INCLUDED
-/*
+/*!
+    @file sokol_time.h
+    @brief High-resolution monotonic timing helpers.
+
     sokol_time.h    -- simple cross-platform time measurement
 
     Project URL: https://github.com/floooh/sokol

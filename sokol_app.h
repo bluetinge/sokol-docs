@@ -2,7 +2,10 @@
 #define SOKOL_APP_IMPL
 #endif
 #ifndef SOKOL_APP_INCLUDED
-/*
+/*!
+    @file sokol_app.h
+    @brief Cross-platform application wrapper.
+
     sokol_app.h -- cross-platform application wrapper
 
     Project URL: https://github.com/floooh/sokol
@@ -2140,6 +2143,8 @@ typedef enum sapp_mouse_cursor {
  */
 extern sapp_desc sokol_main(int argc, char* argv[]);
 
+/** @name Core Queries */
+/** @{ */
 /** @brief Return whether sokol-app has been initialized successfully. */
 SOKOL_APP_API_DECL bool sapp_isvalid(void);
 /** @brief Return the current default framebuffer width in pixels. */
@@ -2160,6 +2165,9 @@ SOKOL_APP_API_DECL int sapp_sample_count(void);
 SOKOL_APP_API_DECL bool sapp_high_dpi(void);
 /** @brief Return the scale factor from window pixels to framebuffer pixels. */
 SOKOL_APP_API_DECL float sapp_dpi_scale(void);
+/** @} */
+/** @name Input And Window State */
+/** @{ */
 /** @brief Show or hide the on-screen keyboard on supported mobile/web platforms. */
 SOKOL_APP_API_DECL void sapp_show_keyboard(bool show);
 /** @brief Return whether the on-screen keyboard is currently visible. */
@@ -2184,6 +2192,9 @@ SOKOL_APP_API_DECL sapp_mouse_cursor sapp_get_mouse_cursor(void);
 SOKOL_APP_API_DECL sapp_mouse_cursor sapp_bind_mouse_cursor_image(sapp_mouse_cursor cursor, const sapp_image_desc* desc);
 /** @brief Restore a cursor slot to its default system appearance. */
 SOKOL_APP_API_DECL void sapp_unbind_mouse_cursor_image(sapp_mouse_cursor cursor);
+/** @} */
+/** @name Lifecycle And Frame Timing */
+/** @{ */
 /** @brief Return the caller-provided `sapp_desc.user_data` pointer. */
 SOKOL_APP_API_DECL void* sapp_userdata(void);
 /** @brief Return a copy of the resolved application descriptor. */
@@ -2202,6 +2213,9 @@ SOKOL_APP_API_DECL uint64_t sapp_frame_count(void);
 SOKOL_APP_API_DECL double sapp_frame_duration(void);
 /** @brief Return the unfiltered frame duration in seconds. */
 SOKOL_APP_API_DECL double sapp_frame_duration_unfiltered(void);
+/** @} */
+/** @name Clipboard And Drag-And-Drop */
+/** @{ */
 /** @brief Write a UTF-8 string into the clipboard on supported platforms. */
 SOKOL_APP_API_DECL void sapp_set_clipboard_string(const char* str);
 /** @brief Read the last pasted clipboard string. */
@@ -2214,7 +2228,9 @@ SOKOL_APP_API_DECL void sapp_set_icon(const sapp_icon_desc* icon_desc);
 SOKOL_APP_API_DECL int sapp_get_num_dropped_files(void);
 /** @brief Return the UTF-8 path for a dropped file by index. */
 SOKOL_APP_API_DECL const char* sapp_get_dropped_file_path(int index);
-
+/** @} */
+/** @name Initialization And Interop */
+/** @{ */
 /** @brief Run the application manually when using `SOKOL_NO_ENTRY`. */
 SOKOL_APP_API_DECL void sapp_run(const sapp_desc* desc);
 
@@ -2227,7 +2243,9 @@ SOKOL_APP_API_DECL sapp_environment sapp_get_environment(void);
  * also acquires the next swapchain image.
  */
 SOKOL_APP_API_DECL sapp_swapchain sapp_get_swapchain(void);
-
+/** @} */
+/** @name Platform-Specific Helpers */
+/** @{ */
 /* EGL: get EGLDisplay object */
 SOKOL_APP_API_DECL const void* sapp_egl_get_display(void);
 /* EGL: get EGLContext object */
@@ -2276,6 +2294,7 @@ SOKOL_APP_API_DECL const void* sapp_x11_get_display(void);
 
 /* Android: get native activity handle */
 SOKOL_APP_API_DECL const void* sapp_android_get_native_activity(void);
+/** @} */
 
 #ifdef __cplusplus
 } /* extern "C" */

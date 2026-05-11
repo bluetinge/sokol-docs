@@ -104,6 +104,7 @@ INPUT                  = docs/doxygen/mainpage.md \
                          util/sokol_spine.h
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.h *.md
+EXTENSION_MAPPING      = h=C
 RECURSIVE              = NO
 EXCLUDE                = tests \
                          bindgen/impl
@@ -182,8 +183,7 @@ EXPAND_ONLY_PREDEF     = YES
 SEARCH_INCLUDES        = NO
 INCLUDE_PATH           =
 INCLUDE_FILE_PATTERNS  =
-PREDEFINED             = __cplusplus \
-                         SOKOL_API_DECL= \
+PREDEFINED             = SOKOL_API_DECL= \
                          SOKOL_API_IMPL= \
                          SOKOL_APP_API_DECL= \
                          SOKOL_ARGS_API_DECL= \

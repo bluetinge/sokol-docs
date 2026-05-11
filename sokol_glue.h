@@ -2,7 +2,10 @@
 #define SOKOL_GLUE_IMPL
 #endif
 #ifndef SOKOL_GLUE_INCLUDED
-/*
+/*!
+    @file sokol_glue.h
+    @brief Glue helpers between sokol headers.
+
     sokol_glue.h -- glue helper functions for sokol headers
 
     Project URL: https://github.com/floooh/sokol

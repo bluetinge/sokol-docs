@@ -2,7 +2,10 @@
 #define SOKOL_FETCH_IMPL
 #endif
 #ifndef SOKOL_FETCH_INCLUDED
-/*
+/*!
+    @file sokol_fetch.h
+    @brief Asynchronous file and HTTP loading API.
+
     sokol_fetch.h -- asynchronous data loading/streaming
 
     Project URL: https://github.com/floooh/sokol
