@@ -5,14 +5,25 @@
 /*!
     @file sokol_time.h
     @brief High-resolution monotonic timing helpers.
+    @details
+    `sokol_time.h` exposes a tiny API for monotonic timestamps, elapsed-time
+    measurement, and converting backend-specific ticks into common time units.
+
+    The original long-form notes below remain the canonical overview. The
+    public declarations further down duplicate the useful pieces onto the
+    clicked API symbols.
+*/
+/*!
+    @file sokol_time.h
+    @brief High-resolution monotonic timing helpers.
 
     sokol_time.h    -- simple cross-platform time measurement
 
     Project URL: https://github.com/floooh/sokol
 
     Do this:
-        #define SOKOL_IMPL or
-        #define SOKOL_TIME_IMPL
+        \#define SOKOL_IMPL or
+        \#define SOKOL_TIME_IMPL
     before you include this file in *one* C or C++ file to create the
     implementation.
 

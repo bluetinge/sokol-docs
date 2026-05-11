@@ -5,6 +5,19 @@
 /*!
     @file sokol_fetch.h
     @brief Asynchronous file and HTTP loading API.
+    @details
+    `sokol_fetch.h` provides a request/callback based asynchronous loading API
+    for files and URLs, with explicit buffer ownership and thread-local fetch
+    contexts.
+
+    The original long-form overview below remains the canonical explanation of
+    channels, lanes, buffering, streaming, and callback state transitions. The
+    public declarations further down duplicate the key pieces onto the symbols
+    users actually click.
+*/
+/*!
+    @file sokol_fetch.h
+    @brief Asynchronous file and HTTP loading API.
 
     sokol_fetch.h -- asynchronous data loading/streaming
 
@@ -995,13 +1008,12 @@ typedef struct sfetch_logger_t {
     void* user_data;
 } sfetch_logger_t;
 
-/*
-    sfetch_range_t
-
-    A pointer-size pair struct to pass memory ranges into and out of sokol-fetch.
-    When initialized from a value type (array or struct) you can use the
-    SFETCH_RANGE() helper macro to build an sfetch_range_t struct.
-*/
+/**
+ * @brief Pointer/size pair used by sokol-fetch.
+ *
+ * This is used for request buffers, response buffers, and embedded user-data
+ * blobs. When initialized from a value type, use `SFETCH_RANGE()`.
+ */
 typedef struct sfetch_range_t {
     const void* ptr;
     size_t size;
@@ -1034,6 +1046,10 @@ typedef struct sfetch_allocator_t {
 
 /**
  * @brief Configuration values for `sfetch_setup()`.
+ *
+ * These values control how many active requests may exist, how much parallelism
+ * is available through channels and lanes, and which allocator/logger hooks are
+ * used.
  */
 typedef struct sfetch_desc_t {
     uint32_t max_requests;          // max number of active requests across all channels (default: 128)
@@ -1045,6 +1061,9 @@ typedef struct sfetch_desc_t {
 
 /**
  * @brief Opaque handle that identifies an active request.
+ *
+ * Request handles are thread-local and only meaningful on the thread that owns
+ * the corresponding fetch context.
  */
 typedef struct sfetch_handle_t { uint32_t id; } sfetch_handle_t;
 
@@ -1064,23 +1083,27 @@ typedef enum sfetch_error_t {
 
 /**
  * @brief Response state passed to an `sfetch_request_t.callback`.
+ *
+ * The callback receives one or more of these state updates over the lifetime
+ * of a request. The boolean flags indicate whether the request has just been
+ * dispatched, delivered fetched data, been paused, or reached its final state.
  */
 typedef struct sfetch_response_t {
-    sfetch_handle_t handle;         // request handle this response belongs to
-    bool dispatched;                // true when request is in DISPATCHED state (lane has been assigned)
-    bool fetched;                   // true when request is in FETCHED state (fetched data is available)
-    bool paused;                    // request is currently in paused state
-    bool finished;                  // this is the last response for this request
-    bool failed;                    // request has failed (always set together with 'finished')
-    bool cancelled;                 // request was cancelled (always set together with 'finished')
-    sfetch_error_t error_code;      // more detailed error code when failed is true
-    uint32_t channel;               // the channel which processes this request
-    uint32_t lane;                  // the lane this request occupies on its channel
-    const char* path;               // the original filesystem path of the request
-    void* user_data;                // pointer to read/write user-data area
-    uint32_t data_offset;           // current offset of fetched data chunk in the overall file data
-    sfetch_range_t data;            // the fetched data as ptr/size pair (data.ptr == buffer.ptr, data.size <= buffer.size)
-    sfetch_range_t buffer;          // the user-provided buffer which holds the fetched data
+    sfetch_handle_t handle;         /**< Request handle this response belongs to. */
+    bool dispatched;                /**< `true` when the request has been assigned a channel lane. */
+    bool fetched;                   /**< `true` when `data` contains freshly fetched bytes. */
+    bool paused;                    /**< `true` while the request is paused. */
+    bool finished;                  /**< `true` for the final callback of a request. */
+    bool failed;                    /**< `true` when the request failed; always paired with `finished`. */
+    bool cancelled;                 /**< `true` when the request was cancelled; always paired with `finished`. */
+    sfetch_error_t error_code;      /**< Detailed failure reason when `failed` is true. */
+    uint32_t channel;               /**< Channel processing this request. */
+    uint32_t lane;                  /**< Lane occupied on the processing channel. */
+    const char* path;               /**< Original request path. */
+    void* user_data;                /**< Pointer to the copied per-request user-data area. */
+    uint32_t data_offset;           /**< Offset of `data` within the overall file stream. */
+    sfetch_range_t data;            /**< Fetched bytes for the current callback. */
+    sfetch_range_t buffer;          /**< Currently bound destination buffer. */
 } sfetch_response_t;
 
 /**
@@ -1089,14 +1112,18 @@ typedef struct sfetch_response_t {
  * A request must provide `path` and `callback`. If `buffer` is omitted,
  * a buffer can be bound later from the response callback when the request
  * enters the dispatched state.
+ *
+ * `channel` chooses which fetch channel processes the request. `chunk_size`
+ * enables incremental streaming. `user_data` is copied into request-owned
+ * storage and later exposed through `sfetch_response_t.user_data`.
  */
 typedef struct sfetch_request_t {
-    uint32_t channel;                                // index of channel this request is assigned to (default: 0)
-    const char* path;                                // filesystem path or HTTP URL (required)
-    void (*callback) (const sfetch_response_t*);     // response callback function pointer (required)
-    uint32_t chunk_size;                             // number of bytes to load per stream-block (optional)
-    sfetch_range_t buffer;                           // a memory buffer where the data will be loaded into (optional)
-    sfetch_range_t user_data;                        // ptr/size of a POD user data block which will be memcpy'd (optional)
+    uint32_t channel;                                /**< Fetch channel index, default is 0. */
+    const char* path;                                /**< Filesystem path or HTTP URL, required. */
+    void (*callback) (const sfetch_response_t*);     /**< Response callback, required. */
+    uint32_t chunk_size;                             /**< Chunk size for incremental streaming, or 0 for whole-file loading. */
+    sfetch_range_t buffer;                           /**< Optional destination buffer for fetched bytes. */
+    sfetch_range_t user_data;                        /**< Optional POD payload copied into request-owned storage. */
 } sfetch_request_t;
 
 /**

@@ -5,14 +5,24 @@
 /*!
     @file sokol_glue.h
     @brief Glue helpers between sokol headers.
+    @details
+    `sokol_glue.h` contains small helper functions that bridge `sokol_app.h`
+    and `sokol_gfx.h` without forcing a direct dependency between the two.
+
+    The original overview remains below, while the actual helper declarations
+    provide IDE-friendly symbol-level documentation.
+*/
+/*!
+    @file sokol_glue.h
+    @brief Glue helpers between sokol headers.
 
     sokol_glue.h -- glue helper functions for sokol headers
 
     Project URL: https://github.com/floooh/sokol
 
     Do this:
-        #define SOKOL_IMPL or
-        #define SOKOL_GLUE_IMPL
+        \#define SOKOL_IMPL or
+        \#define SOKOL_GLUE_IMPL
     before you include this file in *one* C or C++ file to create the
     implementation.
 

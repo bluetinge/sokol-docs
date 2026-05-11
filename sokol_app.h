@@ -1109,19 +1109,19 @@
     Emscripten runtime `Module` object which is usually setup in the index.html
     like this before the WASM blob is loaded and instantiated:
 
-        <script type='text/javascript'>
+        &lt;script type='text/javascript'&gt;
             var Module = {
                 // ...
             };
-        </script>
+        &lt;/script&gt;
 
     The first option is to set the `Module.canvas` property to your canvas object:
 
-        <script type='text/javascript'>
+        &lt;script type='text/javascript'&gt;
             var Module = {
                 canvas: my_canvas_object,
             };
-        </script>
+        &lt;/script&gt;
 
     When sokol_app.h initializes, it will check the global Module object whether
     a `Module.canvas` property exists and is an object. This method will add
@@ -1134,7 +1134,7 @@
     has started but before the WASM code is running. A good place for this is
     the special `Module.preRun` array in index.html:
 
-        <script type='text/javascript'>
+        &lt;script type='text/javascript'&gt;
             var Module = {
                 preRun: [
                     () => {
@@ -1142,7 +1142,7 @@
                     }
                 ],
             };
-        </script>
+        &lt;/script&gt;
 
     In that case, pass the same string to sokol_app.h which is used as key
     in the specialHTMLTargets[] map:
@@ -1910,6 +1910,12 @@ typedef struct sapp_vulkan_environment {
     uint32_t queue_family_index;
 } sapp_vulkan_environment;
 
+/**
+ * @brief Backend environment data for the active app runtime.
+ *
+ * Returned by `sapp_get_environment()` and primarily useful when bridging into
+ * other sokol libraries such as `sokol_gfx.h`.
+ */
 typedef struct sapp_environment {
     sapp_environment_defaults defaults;
     sapp_metal_environment metal;
@@ -1965,6 +1971,14 @@ typedef struct sapp_gl_swapchain {
     uint32_t framebuffer;               // GL framebuffer object
 } sapp_gl_swapchain;
 
+/**
+ * @brief Swapchain data for the current frame.
+ *
+ * Returned by `sapp_get_swapchain()`. This bundles framebuffer formats,
+ * dimensions, sample count, and backend-specific native presentation objects.
+ *
+ * Call `sapp_get_swapchain()` exactly once per frame.
+ */
 typedef struct sapp_swapchain {
     int width;
     int height;
@@ -2034,6 +2048,13 @@ typedef struct sapp_ios_desc {
     bool keyboard_resizes_canvas; // if true, showing the iOS keyboard shrinks the canvas
 } sapp_ios_desc;
 
+/**
+ * @brief Main application setup descriptor.
+ *
+ * Pass this to `sapp_run()` or return it from `sokol_main()` to configure app
+ * callbacks, window or canvas properties, optional clipboard and drag-and-drop
+ * support, logging, and backend-specific settings.
+ */
 typedef struct sapp_desc {
     void (*init_cb)(void);                  // these are the user-provided callbacks without user data
     void (*frame_cb)(void);
@@ -2079,6 +2100,12 @@ typedef enum sapp_html5_fetch_error {
     SAPP_HTML5_FETCH_ERROR_OTHER,
 } sapp_html5_fetch_error;
 
+/**
+ * @brief Response passed to `sapp_html5_fetch_request.callback`.
+ *
+ * Used when asynchronously loading the contents of an HTML5 dropped file into
+ * a caller-provided buffer.
+ */
 typedef struct sapp_html5_fetch_response {
     bool succeeded;         // true if the loading operation has succeeded
     sapp_html5_fetch_error error_code;
@@ -2088,6 +2115,12 @@ typedef struct sapp_html5_fetch_response {
     void* user_data;        // user-provided user data pointer
 } sapp_html5_fetch_response;
 
+/**
+ * @brief Request parameters for `sapp_html5_fetch_dropped_file()`.
+ *
+ * Select the dropped-file index, provide a callback, and provide a destination
+ * buffer that will receive the loaded file bytes.
+ */
 typedef struct sapp_html5_fetch_request {
     int dropped_file_index; // 0..sapp_get_num_dropped_files()-1
     void (*callback)(const sapp_html5_fetch_response*);     // response callback function pointer (required)

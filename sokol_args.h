@@ -5,6 +5,17 @@
 /*!
     @file sokol_args.h
     @brief Cross-platform key/value argument parsing for native and web apps.
+    @details
+    `sokol_args.h` provides a small argument parser that maps command-line
+    arguments or URL query parameters to key/value pairs.
+
+    The original overview and formatting rules remain in the long-form prose
+    block below. The API declarations further down provide symbol-level
+    documentation for IDE hovers and Doxygen click-through pages.
+*/
+/*!
+    @file sokol_args.h
+    @brief Cross-platform key/value argument parsing for native and web apps.
 
     sokol_args.h    -- cross-platform key/value arg-parsing for web and native
 
@@ -330,18 +341,17 @@ typedef struct sargs_allocator {
 
 /**
  * @brief Setup parameters for `sargs_setup()`.
+ *
+ * On native platforms, provide `argc` and `argv` from your program entry
+ * point. On web builds, those fields are ignored and arguments are parsed from
+ * the page URL instead.
  */
 typedef struct sargs_desc {
-    /**< Native `argc` value. Ignored on web builds. */
-    int argc;
-    /**< Native `argv` value. Ignored on web builds. */
-    char** argv;
-    /**< Maximum number of parsed arguments to retain. */
-    int max_args;
-    /**< Size in bytes of the internal string storage buffer. */
-    int buf_size;
-    /**< Optional allocator override used for internal allocations. */
-    sargs_allocator allocator;
+    int argc;                   /**< Native `argc` value. Ignored on web builds. */
+    char** argv;                /**< Native `argv` value. Ignored on web builds. */
+    int max_args;               /**< Maximum number of parsed arguments to retain. */
+    int buf_size;               /**< Size in bytes of the internal string storage buffer. */
+    sargs_allocator allocator;  /**< Optional allocator override used for internal allocations. */
 } sargs_desc;
 
 /**

@@ -5,6 +5,16 @@
 /*!
     @file sokol_log.h
     @brief Standard logging callback for sokol headers.
+    @details
+    `sokol_log.h` provides a ready-to-use logging callback that can be plugged
+    into the various sokol library setup descriptors.
+
+    The original long-form overview and platform notes remain in place below.
+    The `slog_func` declaration carries the symbol-level hover documentation.
+*/
+/*!
+    @file sokol_log.h
+    @brief Standard logging callback for sokol headers.
 
     sokol_log.h -- common logging callback for sokol headers
 
@@ -13,8 +23,8 @@
     Example code: https://github.com/floooh/sokol-samples
 
     Do this:
-        #define SOKOL_IMPL or
-        #define SOKOL_LOG_IMPL
+        \#define SOKOL_IMPL or
+        \#define SOKOL_LOG_IMPL
     before you include this file in *one* C or C++ file to create the
     implementation.
 

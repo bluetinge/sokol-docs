@@ -5,6 +5,18 @@
 /*!
     @file sokol_audio.h
     @brief Cross-platform streaming audio API.
+    @details
+    `sokol_audio.h` exposes a small audio playback API built around either a
+    stream callback model or a push-buffer model.
+
+    The original long-form walkthrough below remains the canonical explanation
+    of buffering, latency, threading, and backend behaviour. The public API
+    declarations further down duplicate the most useful parts onto the symbols
+    people actually click in IDEs and generated docs.
+*/
+/*!
+    @file sokol_audio.h
+    @brief Cross-platform streaming audio API.
 
     sokol_audio.h -- cross-platform audio-streaming API
 
@@ -374,7 +386,7 @@
     converts the incoming floating point sample values to signed 16-bit
     integers.
 
-    The required Windows system DLLs are linked with #pragma comment(lib, ...),
+    The required Windows system DLLs are linked with \#pragma comment(lib, ...),
     so you shouldn't need to add additional linker libs in the build process
     (otherwise this is a bug which should be fixed in sokol_audio.h).
 
@@ -624,14 +636,11 @@ typedef struct saudio_logger {
     void* user_data;
 } saudio_logger;
 
-/*
-    saudio_allocator
-
-    Used in saudio_desc to provide custom memory-alloc and -free functions
-    to sokol_audio.h. If memory management should be overridden, both the
-    alloc_fn and free_fn function must be provided (e.g. it's not valid to
-    override one function but not the other).
-*/
+/**
+ * @brief Optional allocation hooks for sokol-audio.
+ *
+ * If memory management should be overridden, both functions must be provided.
+ */
 typedef struct saudio_allocator {
     void* (*alloc_fn)(size_t size, void* user_data);
     void (*free_fn)(void* ptr, void* user_data);
@@ -667,19 +676,29 @@ typedef struct saudio_win32_desc {
     bool skip_coinitialize; // when true sokol-audio will not call CoInitializeEx/CoUninitialze
 } saudio_win32_desc;
 
+/**
+ * @brief Audio setup descriptor.
+ *
+ * This controls the requested playback parameters, the optional callback-based
+ * streaming model, and the optional push-model buffering configuration.
+ *
+ * In the callback model, provide either `stream_cb` or `stream_userdata_cb`.
+ * In the push model, leave both callback pointers null and feed audio with
+ * `saudio_push()`.
+ */
 typedef struct saudio_desc {
-    int sample_rate;        // requested sample rate
-    int num_channels;       // number of channels, default: 1 (mono)
-    int buffer_frames;      // number of frames in streaming buffer
-    int packet_frames;      // number of frames in a packet
-    int num_packets;        // number of packets in packet queue
-    void (*stream_cb)(float* buffer, int num_frames, int num_channels);  // optional streaming callback (no user data)
-    void (*stream_userdata_cb)(float* buffer, int num_frames, int num_channels, void* user_data); //... and with user data
-    void* user_data;        // optional user data argument for stream_userdata_cb
-    saudio_win32_desc win32;        // optional config options for windows
-    saudio_n3ds_desc n3ds;          // optional data for use on n3ds
-    saudio_allocator allocator;     // optional allocation override functions
-    saudio_logger logger;           // optional logging function (default: NO LOGGING!)
+    int sample_rate;        /**< Requested sample rate in Hz. */
+    int num_channels;       /**< Requested channel count, default is 1 (mono). */
+    int buffer_frames;      /**< Requested backend stream buffer size in frames. */
+    int packet_frames;      /**< Push-model packet size in frames. */
+    int num_packets;        /**< Number of packets in the push-model ring buffer. */
+    void (*stream_cb)(float* buffer, int num_frames, int num_channels);  /**< Optional stream callback without user data. */
+    void (*stream_userdata_cb)(float* buffer, int num_frames, int num_channels, void* user_data); /**< Optional stream callback with user data. */
+    void* user_data;        /**< Optional user data passed to `stream_userdata_cb`. */
+    saudio_win32_desc win32;        /**< Windows-specific options. */
+    saudio_n3ds_desc n3ds;          /**< Nintendo 3DS-specific options. */
+    saudio_allocator allocator;     /**< Optional allocation overrides. */
+    saudio_logger logger;           /**< Optional logger callback; by default there is no logging. */
 } saudio_desc;
 
 /**
