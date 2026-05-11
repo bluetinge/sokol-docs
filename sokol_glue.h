@@ -113,6 +113,9 @@ extern "C" {
 
 /**
  * @brief Build an `sg_environment` from the active `sokol_app.h` runtime.
+ * @details
+ * Use this when `sokol_app.h` owns the native graphics context and
+ * `sokol_gfx.h` needs matching backend environment data during `sg_setup()`.
  *
  * Use this to forward backend-specific device and default framebuffer
  * information from `sokol_app.h` into `sg_setup()`.
@@ -122,6 +125,9 @@ extern "C" {
 SOKOL_GLUE_API_DECL sg_environment sglue_environment(void);
 /**
  * @brief Build an `sg_swapchain` for the current `sokol_app.h` frame.
+ * @details
+ * Call this when beginning a render pass that targets the default framebuffer
+ * or platform swapchain owned by `sokol_app.h`.
  *
  * Use this when beginning a swapchain-backed pass with `sg_begin_pass()`.
  * The returned data is only valid for the current frame.

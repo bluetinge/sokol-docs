@@ -1132,28 +1132,43 @@ typedef struct sfetch_request_t {
 SOKOL_FETCH_API_DECL void sfetch_setup(const sfetch_desc_t* desc);
 /**
  * @brief Shut down the current thread's fetch context.
+ * @details
+ * This stops worker threads where applicable and frees the request pool,
+ * channels, and other setup-time allocations for the current thread-local
+ * context.
  */
 SOKOL_FETCH_API_DECL void sfetch_shutdown(void);
 /**
  * @brief Return whether the current thread's fetch context is initialized.
+ * @details
+ * A context may exist but still be invalid if setup failed internally, so this
+ * is a useful guard before issuing requests from helper code.
  *
  * @return `true` after `sfetch_setup()` and before `sfetch_shutdown()`.
  */
 SOKOL_FETCH_API_DECL bool sfetch_valid(void);
 /**
  * @brief Return a copy of the resolved setup descriptor.
+ * @details
+ * The returned value reflects the final request-pool, channel, and lane
+ * configuration used by the current context.
  *
  * @return Setup descriptor with defaults applied.
  */
 SOKOL_FETCH_API_DECL sfetch_desc_t sfetch_desc(void);
 /**
  * @brief Return the maximum embedded userdata size in bytes.
+ * @details
+ * This is the maximum size that may be copied from `sfetch_request_t.user_data`
+ * into the internal request item.
  *
  * @return Maximum request userdata payload size.
  */
 SOKOL_FETCH_API_DECL int sfetch_max_userdata_bytes(void);
 /**
  * @brief Return the maximum supported path length in bytes.
+ * @details
+ * This includes the terminating zero byte stored in the request object.
  *
  * @return Maximum UTF-8 path length including terminator.
  */
@@ -1179,11 +1194,17 @@ SOKOL_FETCH_API_DECL sfetch_handle_t sfetch_send(const sfetch_request_t* request
  * @brief Test whether a request handle is valid and still alive.
  *
  * @param h Request handle returned by `sfetch_send()`.
+ * @details
+ * This returns `false` for invalid handles, exhausted-pool results from
+ * `sfetch_send()`, and requests that have already finished.
  * @return `true` if the request still exists.
  */
 SOKOL_FETCH_API_DECL bool sfetch_handle_valid(sfetch_handle_t h);
 /**
  * @brief Advance the fetch state machine and invoke callbacks.
+ * @details
+ * This dispatches new requests, pumps completed I/O back to user code, and
+ * invokes response callbacks whenever a request changes state.
  *
  * Call this regularly on the same thread that created the fetch context.
  * In frame-driven apps, this is typically called once per frame.
@@ -1192,6 +1213,9 @@ SOKOL_FETCH_API_DECL void sfetch_dowork(void);
 
 /**
  * @brief Bind a data buffer to an active request.
+ * @details
+ * This must be called from inside the response callback when a request needs
+ * a buffer assigned or replaced before more data can be delivered.
  *
  * Must be called from within the response callback.
  *
@@ -1201,6 +1225,9 @@ SOKOL_FETCH_API_DECL void sfetch_dowork(void);
 SOKOL_FETCH_API_DECL void sfetch_bind_buffer(sfetch_handle_t h, sfetch_range_t buffer);
 /**
  * @brief Unbind and return the currently attached buffer pointer.
+ * @details
+ * Call this from inside the response callback when user code wants to retain,
+ * recycle, or free the currently associated buffer.
  *
  * Must be called from within the response callback.
  * This is mainly useful when dynamically replacing or freeing request buffers.
@@ -1211,18 +1238,26 @@ SOKOL_FETCH_API_DECL void sfetch_bind_buffer(sfetch_handle_t h, sfetch_range_t b
 SOKOL_FETCH_API_DECL void* sfetch_unbind_buffer(sfetch_handle_t h);
 /**
  * @brief Cancel an active request.
+ * @details
+ * The cancellation is observed during the next `sfetch_dowork()` cycle and the
+ * callback then receives a finished request with a cancellation error.
  *
  * @param h Request handle.
  */
 SOKOL_FETCH_API_DECL void sfetch_cancel(sfetch_handle_t h);
 /**
  * @brief Pause an active request.
+ * @details
+ * Paused requests stop progressing until resumed with `sfetch_continue()`,
+ * which is useful for streaming scenarios with a limited number of buffers.
  *
  * @param h Request handle.
  */
 SOKOL_FETCH_API_DECL void sfetch_pause(sfetch_handle_t h);
 /**
  * @brief Continue a previously paused request.
+ * @details
+ * This resumes a request that was previously paused with `sfetch_pause()`.
  *
  * @param h Request handle.
  */

@@ -19,7 +19,7 @@
     ["guide_time.html", "sokol_time.h"],
     ["guide_glue_log.html", "glue/log"]
   ];
-  const README_HREF = "readme.html";
+  const README_HREF = "md_README.html";
 
   function pageName() {
     const path = window.location.pathname.split("/");
@@ -116,9 +116,6 @@
       entries.slice(0, 14).forEach((item) => {
         const li = document.createElement("li");
         li.appendChild(link(item.href, item.text, "docs-shortcuts__link docs-shortcuts__tree-link"));
-        if (item.summary) {
-          li.appendChild(el("div", "docs-shortcuts__summary", item.summary));
-        }
         list.appendChild(li);
       });
       if (entries.length) {
@@ -167,21 +164,53 @@
     section.classList.add("docs-shortcuts__section");
     const list = el("ul", "docs-shortcuts__list");
     [
-      ["guide_headers.html", "Browse all header guides", "Curated entry points by module."],
-      [README_HREF, "Read the project README", "Preserved upstream overview and examples."],
-      ["files.html", "Open raw file reference", "Complete generated API listing by header."]
-    ].forEach(([href, text, summary]) => {
+      ["guide_headers.html", "Browse all header guides"],
+      [README_HREF, "Read the project README"],
+      ["files.html", "Open raw file reference"]
+    ].forEach(([href, text]) => {
       const li = document.createElement("li");
       li.appendChild(link(href, text));
-      li.appendChild(el("div", "docs-shortcuts__summary", summary));
       list.appendChild(li);
     });
     section.appendChild(list);
     container.appendChild(section);
   }
 
+  function mountGuidesDropdown() {
+    const mainNav = document.getElementById("main-nav");
+    if (!mainNav) return;
+    const guidesAnchor = Array.from(mainNav.querySelectorAll("a"))
+      .find((a) => /pages\.html$/.test(a.getAttribute("href") || "") && a.textContent.trim() === "Guides");
+    if (!guidesAnchor) return;
+
+    const item = guidesAnchor.closest("li");
+    if (!item || item.querySelector(".docs-guides-menu")) return;
+
+    item.classList.add("docs-guides-nav");
+    guidesAnchor.setAttribute("aria-haspopup", "true");
+
+    const menu = el("ul", "docs-guides-menu");
+    const allGuides = document.createElement("li");
+    allGuides.appendChild(link("guide_headers.html", "All Guides", "docs-guides-menu__link"));
+    menu.appendChild(allGuides);
+
+    guideLinks.forEach(([href, text]) => {
+      const li = document.createElement("li");
+      const a = link(href, text, "docs-guides-menu__link");
+      if (href === currentGuideHref()) {
+        a.classList.add("is-active");
+        a.setAttribute("aria-current", "page");
+      }
+      li.appendChild(a);
+      menu.appendChild(li);
+    });
+
+    item.appendChild(menu);
+  }
+
   async function init() {
     const navContents = document.getElementById("nav-tree-contents");
+    mountGuidesDropdown();
     if (!navContents) return;
 
     const card = el("div", "docs-shortcuts");

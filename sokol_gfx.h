@@ -5296,21 +5296,59 @@ typedef struct sg_desc {
  * @param desc Environment information, callbacks, pool sizes, and optional overrides.
  */
 SOKOL_GFX_API_DECL void sg_setup(const sg_desc* desc);
-/** @brief Shut down sokol-gfx and release all backend resources. */
+/**
+ * @brief Shut down sokol-gfx and release all backend resources.
+ * @details
+ * After shutdown, all resource handles become invalid until `sg_setup()` is
+ * called again.
+ */
 SOKOL_GFX_API_DECL void sg_shutdown(void);
-/** @brief Return whether sokol-gfx has been initialized successfully. */
+/**
+ * @brief Return whether sokol-gfx has been initialized successfully.
+ * @details
+ * Use this after `sg_setup()` to detect backend initialization failure before
+ * creating resources or issuing rendering commands.
+ */
 SOKOL_GFX_API_DECL bool sg_isvalid(void);
-/** @brief Resynchronize sokol-gfx state after native backend calls. */
+/**
+ * @brief Resynchronize sokol-gfx state after native backend calls.
+ * @details
+ * Call this when external rendering code has modified backend state behind
+ * sokol-gfx's back so its internal state cache can be refreshed.
+ */
 SOKOL_GFX_API_DECL void sg_reset_state_cache(void);
-/** @brief Install trace hooks and return the previous hook table. */
+/**
+ * @brief Install trace hooks and return the previous hook table.
+ * @details
+ * Trace hooks receive callbacks for API operations and are commonly used for
+ * logging, capture tools, or custom debug overlays.
+ */
 SOKOL_GFX_API_DECL sg_trace_hooks sg_install_trace_hooks(const sg_trace_hooks* trace_hooks);
-/** @brief Push a backend debug marker group for external GPU debuggers. */
+/**
+ * @brief Push a backend debug marker group for external GPU debuggers.
+ * @details
+ * Markers help organize command streams in tools such as RenderDoc, Xcode GPU
+ * Frame Debugger, or similar backend-specific profilers.
+ */
 SOKOL_GFX_API_DECL void sg_push_debug_group(const char* name);
-/** @brief Pop the most recently pushed debug marker group. */
+/**
+ * @brief Pop the most recently pushed debug marker group.
+ * @details
+ * Each pop should match an earlier `sg_push_debug_group()` call.
+ */
 SOKOL_GFX_API_DECL void sg_pop_debug_group(void);
-/** @brief Register a callback invoked after each successful `sg_commit()`. */
+/**
+ * @brief Register a callback invoked after each successful `sg_commit()`.
+ * @details
+ * Commit listeners are useful for lightweight instrumentation that should run
+ * once per submitted frame.
+ */
 SOKOL_GFX_API_DECL bool sg_add_commit_listener(sg_commit_listener listener);
-/** @brief Remove a previously registered commit listener. */
+/**
+ * @brief Remove a previously registered commit listener.
+ * @details
+ * Returns true if the listener was found and removed.
+ */
 SOKOL_GFX_API_DECL bool sg_remove_commit_listener(sg_commit_listener listener);
 /** @} */
 /** @name Resource Creation And Updates */
@@ -5396,21 +5434,59 @@ SOKOL_GFX_API_DECL sg_pipeline sg_make_pipeline(const sg_pipeline_desc* desc);
  * @return A strongly typed view handle.
  */
 SOKOL_GFX_API_DECL sg_view sg_make_view(const sg_view_desc* desc);
-/** @brief Destroy a buffer resource. */
+/**
+ * @brief Destroy a buffer resource.
+ * @details
+ * It is safe to destroy invalid handles, but destroying a live buffer makes
+ * that handle unusable for future bindings or updates.
+ */
 SOKOL_GFX_API_DECL void sg_destroy_buffer(sg_buffer buf);
-/** @brief Destroy an image resource. */
+/**
+ * @brief Destroy an image resource.
+ * @details
+ * Destroy images when they are no longer needed as textures, storage images,
+ * or pass attachments.
+ */
 SOKOL_GFX_API_DECL void sg_destroy_image(sg_image img);
-/** @brief Destroy a sampler resource. */
+/**
+ * @brief Destroy a sampler resource.
+ * @details
+ * This releases the backend sampler object associated with the handle.
+ */
 SOKOL_GFX_API_DECL void sg_destroy_sampler(sg_sampler smp);
-/** @brief Destroy a shader resource. */
+/**
+ * @brief Destroy a shader resource.
+ * @details
+ * Pipelines created from the shader should also be considered unusable once
+ * the shader is destroyed.
+ */
 SOKOL_GFX_API_DECL void sg_destroy_shader(sg_shader shd);
-/** @brief Destroy a pipeline resource. */
+/**
+ * @brief Destroy a pipeline resource.
+ * @details
+ * Destroy pipelines to release compiled backend pipeline state objects.
+ */
 SOKOL_GFX_API_DECL void sg_destroy_pipeline(sg_pipeline pip);
-/** @brief Destroy a view resource. */
+/**
+ * @brief Destroy a view resource.
+ * @details
+ * Views are lightweight resource wrappers used for bindings and pass
+ * attachments and should be released when no longer referenced.
+ */
 SOKOL_GFX_API_DECL void sg_destroy_view(sg_view view);
-/** @brief Replace buffer contents for a dynamic or stream buffer. */
+/**
+ * @brief Replace buffer contents for a dynamic or stream buffer.
+ * @details
+ * This updates the entire logical payload described by `data` and is intended
+ * for buffers created with a mutable usage mode.
+ */
 SOKOL_GFX_API_DECL void sg_update_buffer(sg_buffer buf, const sg_range* data);
-/** @brief Replace image contents for a dynamic or stream image. */
+/**
+ * @brief Replace image contents for a dynamic or stream image.
+ * @details
+ * The provided `sg_image_data` must match the image's size, format, and
+ * subresource layout expectations.
+ */
 SOKOL_GFX_API_DECL void sg_update_image(sg_image img, const sg_image_data* data);
 /**
  * @brief Append data to a dynamic or stream buffer and return the byte offset.
@@ -5419,9 +5495,19 @@ SOKOL_GFX_API_DECL void sg_update_image(sg_image img, const sg_image_data* data)
  * aligned in the destination buffer.
  */
 SOKOL_GFX_API_DECL int sg_append_buffer(sg_buffer buf, const sg_range* data);
-/** @brief Return whether a buffer overflowed earlier in the current frame. */
+/**
+ * @brief Return whether a buffer overflowed earlier in the current frame.
+ * @details
+ * This is mainly useful after repeated `sg_append_buffer()` calls on stream or
+ * dynamic buffers.
+ */
 SOKOL_GFX_API_DECL bool sg_query_buffer_overflow(sg_buffer buf);
-/** @brief Predict whether appending `size` bytes would overflow the buffer this frame. */
+/**
+ * @brief Predict whether appending `size` bytes would overflow the buffer this frame.
+ * @details
+ * Use this before appending large chunks if you want to avoid partial update
+ * work or fall back to another upload path.
+ */
 SOKOL_GFX_API_DECL bool sg_query_buffer_will_overflow(sg_buffer buf, size_t size);
 /** @} */
 /** @name Render And Compute */
@@ -5443,13 +5529,30 @@ SOKOL_GFX_API_DECL bool sg_query_buffer_will_overflow(sg_buffer buf, size_t size
  * @endcode
  */
 SOKOL_GFX_API_DECL void sg_begin_pass(const sg_pass* pass);
-/** @brief Set the viewport rectangle using integer coordinates. */
+/**
+ * @brief Set the viewport rectangle using integer coordinates.
+ * @details
+ * The viewport remains active until changed again or the current pass ends.
+ */
 SOKOL_GFX_API_DECL void sg_apply_viewport(int x, int y, int width, int height, bool origin_top_left);
-/** @brief Set the viewport rectangle using floating-point coordinates. */
+/**
+ * @brief Set the viewport rectangle using floating-point coordinates.
+ * @details
+ * This is the floating-point counterpart to `sg_apply_viewport()`.
+ */
 SOKOL_GFX_API_DECL void sg_apply_viewportf(float x, float y, float width, float height, bool origin_top_left);
-/** @brief Set the scissor rectangle using integer coordinates. */
+/**
+ * @brief Set the scissor rectangle using integer coordinates.
+ * @details
+ * Fragments outside the scissor rectangle are discarded for subsequent draw
+ * calls in the current pass.
+ */
 SOKOL_GFX_API_DECL void sg_apply_scissor_rect(int x, int y, int width, int height, bool origin_top_left);
-/** @brief Set the scissor rectangle using floating-point coordinates. */
+/**
+ * @brief Set the scissor rectangle using floating-point coordinates.
+ * @details
+ * This is the floating-point counterpart to `sg_apply_scissor_rect()`.
+ */
 SOKOL_GFX_API_DECL void sg_apply_scissor_rectf(float x, float y, float width, float height, bool origin_top_left);
 /**
  * @brief Apply a graphics or compute pipeline for subsequent work.
@@ -5480,13 +5583,32 @@ SOKOL_GFX_API_DECL void sg_apply_uniforms(int ub_slot, const sg_range* data);
  * non-instanced rendering, into one call.
  */
 SOKOL_GFX_API_DECL void sg_draw(int base_element, int num_elements, int num_instances);
-/** @brief Issue an extended draw call with base-vertex and base-instance. */
+/**
+ * @brief Issue an extended draw call with base-vertex and base-instance.
+ * @details
+ * This is useful when drawing subranges from shared vertex and instance data
+ * while reusing one bound pipeline and binding set.
+ */
 SOKOL_GFX_API_DECL void sg_draw_ex(int base_element, int num_elements, int num_instances, int base_vertex, int base_instance);
-/** @brief Dispatch a compute workload. */
+/**
+ * @brief Dispatch a compute workload.
+ * @details
+ * The group counts must match the expectations of the currently applied
+ * compute pipeline and shader.
+ */
 SOKOL_GFX_API_DECL void sg_dispatch(int num_groups_x, int num_groups_y, int num_groups_z);
-/** @brief End the current render or compute pass. */
+/**
+ * @brief End the current render or compute pass.
+ * @details
+ * No further draw or dispatch commands may be issued until a new pass begins.
+ */
 SOKOL_GFX_API_DECL void sg_end_pass(void);
-/** @brief Submit the current frame to the backend. */
+/**
+ * @brief Submit the current frame to the backend.
+ * @details
+ * Call this once per frame after recording all passes to present or flush the
+ * accumulated command buffer.
+ */
 SOKOL_GFX_API_DECL void sg_commit(void);
 /** @} */
 /** @name Queries */
@@ -5498,13 +5620,33 @@ SOKOL_GFX_API_DECL void sg_commit(void);
  * values already patched in.
  */
 SOKOL_GFX_API_DECL sg_desc sg_query_desc(void);
-/** @brief Return the active backend selected at compile time. */
+/**
+ * @brief Return the active backend selected at compile time.
+ * @details
+ * This is commonly used to select backend-specific shader descriptors or
+ * optional interop code paths.
+ */
 SOKOL_GFX_API_DECL sg_backend sg_query_backend(void);
-/** @brief Return optional backend feature flags supported by the active backend. */
+/**
+ * @brief Return optional backend feature flags supported by the active backend.
+ * @details
+ * Inspect the returned flags before relying on optional rendering or compute
+ * capabilities.
+ */
 SOKOL_GFX_API_DECL sg_features sg_query_features(void);
-/** @brief Return runtime limits for the active backend. */
+/**
+ * @brief Return runtime limits for the active backend.
+ * @details
+ * The returned values describe practical resource and stage limits that can be
+ * used to validate content or choose fallback paths.
+ */
 SOKOL_GFX_API_DECL sg_limits sg_query_limits(void);
-/** @brief Return capabilities for a specific pixel format. */
+/**
+ * @brief Return capabilities for a specific pixel format.
+ * @details
+ * This helps determine whether a format supports sampling, rendering, storage,
+ * filtering, blending, and related usage modes on the current backend.
+ */
 SOKOL_GFX_API_DECL sg_pixelformat_info sg_query_pixelformat(sg_pixel_format fmt);
 /**
  * @brief Compute the byte size of one image row for a pixel format.
@@ -5521,37 +5663,108 @@ SOKOL_GFX_API_DECL int sg_query_row_pitch(sg_pixel_format fmt, int width, int ro
  */
 SOKOL_GFX_API_DECL int sg_query_surface_pitch(sg_pixel_format fmt, int width, int height, int row_align_bytes);
 // get current state of a resource (INITIAL, ALLOC, VALID, FAILED, INVALID)
-/** @brief Query the current lifecycle state of a buffer resource. */
+/**
+ * @brief Query the current lifecycle state of a buffer resource.
+ * @details
+ * The returned state distinguishes valid, failed, destroyed, and not-yet-
+ * initialized handles.
+ */
 SOKOL_GFX_API_DECL sg_resource_state sg_query_buffer_state(sg_buffer buf);
-/** @brief Query the current lifecycle state of an image resource. */
+/**
+ * @brief Query the current lifecycle state of an image resource.
+ * @details
+ * Use this after creation or deferred initialization to distinguish success
+ * from failure.
+ */
 SOKOL_GFX_API_DECL sg_resource_state sg_query_image_state(sg_image img);
-/** @brief Query the current lifecycle state of a sampler resource. */
+/**
+ * @brief Query the current lifecycle state of a sampler resource.
+ * @details
+ * This is mainly useful for tools, diagnostics, and deferred-setup flows.
+ */
 SOKOL_GFX_API_DECL sg_resource_state sg_query_sampler_state(sg_sampler smp);
-/** @brief Query the current lifecycle state of a shader resource. */
+/**
+ * @brief Query the current lifecycle state of a shader resource.
+ * @details
+ * Failed shaders usually indicate invalid source, bytecode, reflection data,
+ * or backend incompatibilities.
+ */
 SOKOL_GFX_API_DECL sg_resource_state sg_query_shader_state(sg_shader shd);
-/** @brief Query the current lifecycle state of a pipeline resource. */
+/**
+ * @brief Query the current lifecycle state of a pipeline resource.
+ * @details
+ * Pipelines can fail to initialize when their shader interface, render-state
+ * settings, or backend support requirements are invalid.
+ */
 SOKOL_GFX_API_DECL sg_resource_state sg_query_pipeline_state(sg_pipeline pip);
-/** @brief Query the current lifecycle state of a view resource. */
+/**
+ * @brief Query the current lifecycle state of a view resource.
+ * @details
+ * This is useful when views are created asynchronously or rebound from shared
+ * resource pools.
+ */
 SOKOL_GFX_API_DECL sg_resource_state sg_query_view_state(sg_view view);
 // get runtime information about a resource
-/** @brief Return runtime information for a buffer handle. */
+/**
+ * @brief Return runtime information for a buffer handle.
+ * @details
+ * The returned `sg_buffer_info` includes state, backend slot information, and
+ * frame-related update bookkeeping.
+ */
 SOKOL_GFX_API_DECL sg_buffer_info sg_query_buffer_info(sg_buffer buf);
-/** @brief Return runtime information for an image handle. */
+/**
+ * @brief Return runtime information for an image handle.
+ * @details
+ * This exposes internal state useful for debugging resource lifetime and
+ * backend allocation behavior.
+ */
 SOKOL_GFX_API_DECL sg_image_info sg_query_image_info(sg_image img);
-/** @brief Return runtime information for a sampler handle. */
+/**
+ * @brief Return runtime information for a sampler handle.
+ * @details
+ * The returned info is primarily intended for diagnostics and tooling.
+ */
 SOKOL_GFX_API_DECL sg_sampler_info sg_query_sampler_info(sg_sampler smp);
-/** @brief Return runtime information for a shader handle. */
+/**
+ * @brief Return runtime information for a shader handle.
+ * @details
+ * This can help diagnose failed shader creation or inspect frame indices
+ * associated with the handle.
+ */
 SOKOL_GFX_API_DECL sg_shader_info sg_query_shader_info(sg_shader shd);
-/** @brief Return runtime information for a pipeline handle. */
+/**
+ * @brief Return runtime information for a pipeline handle.
+ * @details
+ * The returned info is useful when debugging deferred initialization and
+ * backend object lifetime.
+ */
 SOKOL_GFX_API_DECL sg_pipeline_info sg_query_pipeline_info(sg_pipeline pip);
-/** @brief Return runtime information for a view handle. */
+/**
+ * @brief Return runtime information for a view handle.
+ * @details
+ * View info mirrors the diagnostic role of the other `sg_query_*_info()`
+ * functions.
+ */
 SOKOL_GFX_API_DECL sg_view_info sg_query_view_info(sg_view view);
 // get desc structs matching a specific resource (NOTE that not all creation attributes may be provided)
-/** @brief Return the stored creation descriptor for a buffer. */
+/**
+ * @brief Return the stored creation descriptor for a buffer.
+ * @details
+ * As with the other descriptor query helpers, only creation fields retained by
+ * sokol-gfx after resource creation can be reconstructed.
+ */
 SOKOL_GFX_API_DECL sg_buffer_desc sg_query_buffer_desc(sg_buffer buf);
-/** @brief Return the stored creation descriptor for an image. */
+/**
+ * @brief Return the stored creation descriptor for an image.
+ * @details
+ * Fields not retained internally after creation are returned as zero.
+ */
 SOKOL_GFX_API_DECL sg_image_desc sg_query_image_desc(sg_image img);
-/** @brief Return the stored creation descriptor for a sampler. */
+/**
+ * @brief Return the stored creation descriptor for a sampler.
+ * @details
+ * This is useful for tooling, serialization helpers, or debug UIs.
+ */
 SOKOL_GFX_API_DECL sg_sampler_desc sg_query_sampler_desc(sg_sampler smp);
 /**
  * @brief Query the stored creation descriptor for a shader.
@@ -5565,16 +5778,40 @@ SOKOL_GFX_API_DECL sg_sampler_desc sg_query_sampler_desc(sg_sampler smp);
  *         invalid shader handle.
  */
 SOKOL_GFX_API_DECL sg_shader_desc sg_query_shader_desc(sg_shader shd);
-/** @brief Return the stored creation descriptor for a pipeline. */
+/**
+ * @brief Return the stored creation descriptor for a pipeline.
+ * @details
+ * As with the other descriptor query functions, the result may omit values not
+ * preserved internally after creation.
+ */
 SOKOL_GFX_API_DECL sg_pipeline_desc sg_query_pipeline_desc(sg_pipeline pip);
-/** @brief Return the stored creation descriptor for a view. */
+/**
+ * @brief Return the stored creation descriptor for a view.
+ * @details
+ * This allows tooling or diagnostics to inspect how a view was originally
+ * configured.
+ */
 SOKOL_GFX_API_DECL sg_view_desc sg_query_view_desc(sg_view view);
 // get resource creation desc struct with their default values replaced
-/** @brief Return a buffer descriptor with defaults patched in. */
+/**
+ * @brief Return a buffer descriptor with defaults patched in.
+ * @details
+ * This is useful when inspecting the exact implicit values sokol-gfx would use
+ * for omitted buffer fields.
+ */
 SOKOL_GFX_API_DECL sg_buffer_desc sg_query_buffer_defaults(const sg_buffer_desc* desc);
-/** @brief Return an image descriptor with defaults patched in. */
+/**
+ * @brief Return an image descriptor with defaults patched in.
+ * @details
+ * Use this to preview the resolved descriptor before creating an image.
+ */
 SOKOL_GFX_API_DECL sg_image_desc sg_query_image_defaults(const sg_image_desc* desc);
-/** @brief Return a sampler descriptor with defaults patched in. */
+/**
+ * @brief Return a sampler descriptor with defaults patched in.
+ * @details
+ * This mirrors `sg_query_buffer_defaults()` and `sg_query_image_defaults()`
+ * for sampler creation.
+ */
 SOKOL_GFX_API_DECL sg_sampler_desc sg_query_sampler_defaults(const sg_sampler_desc* desc);
 /**
  * @brief Return a shader descriptor with all default values patched in.
@@ -5586,44 +5823,137 @@ SOKOL_GFX_API_DECL sg_sampler_desc sg_query_sampler_defaults(const sg_sampler_de
  * @return A copy of `desc` with defaults filled in.
  */
 SOKOL_GFX_API_DECL sg_shader_desc sg_query_shader_defaults(const sg_shader_desc* desc);
-/** @brief Return a pipeline descriptor with defaults patched in. */
+/**
+ * @brief Return a pipeline descriptor with defaults patched in.
+ * @details
+ * This is helpful for tooling and for understanding which render-state values
+ * become active when fields are left zero-initialized.
+ */
 SOKOL_GFX_API_DECL sg_pipeline_desc sg_query_pipeline_defaults(const sg_pipeline_desc* desc);
-/** @brief Return a view descriptor with defaults patched in. */
+/**
+ * @brief Return a view descriptor with defaults patched in.
+ * @details
+ * Use this to inspect the fully resolved form of a partially specified
+ * `sg_view_desc`.
+ */
 SOKOL_GFX_API_DECL sg_view_desc sg_query_view_defaults(const sg_view_desc* desc);
 // assorted query functions
+/** @brief Return the logical size in bytes of a buffer resource.
+ * @details This reports the size recorded when the buffer was created.
+ */
 SOKOL_GFX_API_DECL size_t sg_query_buffer_size(sg_buffer buf);
+/** @brief Return the usage mode a buffer was created with.
+ * @details This is one of the `sg_buffer_usage` values from the original descriptor.
+ */
 SOKOL_GFX_API_DECL sg_buffer_usage sg_query_buffer_usage(sg_buffer buf);
+/** @brief Return the concrete image type of an image resource.
+ * @details The result distinguishes 2D, cube, array, 3D, and related image kinds.
+ */
 SOKOL_GFX_API_DECL sg_image_type sg_query_image_type(sg_image img);
+/** @brief Return the width of an image resource in pixels.
+ * @details This returns the size stored for the base mip level.
+ */
 SOKOL_GFX_API_DECL int sg_query_image_width(sg_image img);
+/** @brief Return the height of an image resource in pixels.
+ * @details This returns the size stored for the base mip level.
+ */
 SOKOL_GFX_API_DECL int sg_query_image_height(sg_image img);
+/** @brief Return the number of slices in an image resource.
+ * @details For array and cube images this corresponds to the created slice count.
+ */
 SOKOL_GFX_API_DECL int sg_query_image_num_slices(sg_image img);
+/** @brief Return the number of mip levels in an image resource.
+ * @details This is useful when generating or validating image upload data.
+ */
 SOKOL_GFX_API_DECL int sg_query_image_num_mipmaps(sg_image img);
+/** @brief Return the pixel format of an image resource.
+ * @details The result matches the format chosen at image creation time.
+ */
 SOKOL_GFX_API_DECL sg_pixel_format sg_query_image_pixelformat(sg_image img);
+/** @brief Return the usage mode an image was created with.
+ * @details This indicates whether the image is immutable, dynamic, stream, or otherwise specialized.
+ */
 SOKOL_GFX_API_DECL sg_image_usage sg_query_image_usage(sg_image img);
+/** @brief Return the MSAA sample count of an image resource.
+ * @details Non-multisampled images typically report 1.
+ */
 SOKOL_GFX_API_DECL int sg_query_image_sample_count(sg_image img);
+/** @brief Return the concrete view type of a view resource.
+ * @details This identifies whether the view references a buffer, image, or a more specific subresource view.
+ */
 SOKOL_GFX_API_DECL sg_view_type sg_query_view_type(sg_view view);
+/** @brief Return the image resource referenced by a view, if any.
+ * @details For non-image views, the returned handle is invalid.
+ */
 SOKOL_GFX_API_DECL sg_image sg_query_view_image(sg_view view);
+/** @brief Return the buffer resource referenced by a view, if any.
+ * @details For non-buffer views, the returned handle is invalid.
+ */
 SOKOL_GFX_API_DECL sg_buffer sg_query_view_buffer(sg_view view);
 /** @} */
 /** @name Async Resource Initialization */
 /** @{ */
-/** @brief Allocate an uninitialized buffer handle for deferred setup. */
+/**
+ * @brief Allocate an uninitialized buffer handle for deferred setup.
+ * @details
+ * The returned handle must later be initialized with `sg_init_buffer()` or
+ * marked failed with `sg_fail_buffer()`.
+ */
 SOKOL_GFX_API_DECL sg_buffer sg_alloc_buffer(void);
-/** @brief Allocate an uninitialized image handle for deferred setup. */
+/**
+ * @brief Allocate an uninitialized image handle for deferred setup.
+ * @details
+ * This separates handle allocation from later resource initialization.
+ */
 SOKOL_GFX_API_DECL sg_image sg_alloc_image(void);
-/** @brief Allocate an uninitialized sampler handle for deferred setup. */
+/**
+ * @brief Allocate an uninitialized sampler handle for deferred setup.
+ * @details
+ * Use this when the final sampler descriptor is not available at allocation
+ * time.
+ */
 SOKOL_GFX_API_DECL sg_sampler sg_alloc_sampler(void);
-/** @brief Allocate an uninitialized shader handle for deferred setup. */
+/**
+ * @brief Allocate an uninitialized shader handle for deferred setup.
+ * @details
+ * This is useful when shader creation must be decoupled from handle ownership.
+ */
 SOKOL_GFX_API_DECL sg_shader sg_alloc_shader(void);
-/** @brief Allocate an uninitialized pipeline handle for deferred setup. */
+/**
+ * @brief Allocate an uninitialized pipeline handle for deferred setup.
+ * @details
+ * Pipelines allocated this way must later be initialized or failed explicitly.
+ */
 SOKOL_GFX_API_DECL sg_pipeline sg_alloc_pipeline(void);
-/** @brief Allocate an uninitialized view handle for deferred setup. */
+/**
+ * @brief Allocate an uninitialized view handle for deferred setup.
+ * @details
+ * This is the deferred-setup counterpart to `sg_make_view()`.
+ */
 SOKOL_GFX_API_DECL sg_view sg_alloc_view(void);
+/** @brief Deallocate an uninitialized buffer handle.
+ * @details This is intended for handles created by `sg_alloc_buffer()` before successful initialization.
+ */
 SOKOL_GFX_API_DECL void sg_dealloc_buffer(sg_buffer buf);
+/** @brief Deallocate an uninitialized image handle.
+ * @details This releases a deferred-setup handle without creating backend objects.
+ */
 SOKOL_GFX_API_DECL void sg_dealloc_image(sg_image img);
+/** @brief Deallocate an uninitialized sampler handle.
+ * @details Use this to abandon a deferred sampler allocation before `sg_init_sampler()`.
+ */
 SOKOL_GFX_API_DECL void sg_dealloc_sampler(sg_sampler smp);
+/** @brief Deallocate an uninitialized shader handle.
+ * @details This is the cleanup counterpart to `sg_alloc_shader()`.
+ */
 SOKOL_GFX_API_DECL void sg_dealloc_shader(sg_shader shd);
+/** @brief Deallocate an uninitialized pipeline handle.
+ * @details No backend pipeline object is destroyed because initialization never completed.
+ */
 SOKOL_GFX_API_DECL void sg_dealloc_pipeline(sg_pipeline pip);
+/** @brief Deallocate an uninitialized view handle.
+ * @details This abandons a deferred view allocation before it becomes valid.
+ */
 SOKOL_GFX_API_DECL void sg_dealloc_view(sg_view view);
 /**
  * @brief Initialize a previously allocated buffer handle.
@@ -5664,24 +5994,72 @@ SOKOL_GFX_API_DECL void sg_init_pipeline(sg_pipeline pip, const sg_pipeline_desc
  * This is the setup-separated counterpart to `sg_make_view()`.
  */
 SOKOL_GFX_API_DECL void sg_init_view(sg_view view, const sg_view_desc* desc);
+/** @brief Return a buffer handle to the uninitialized state.
+ * @details This is part of the deferred resource lifecycle and is mainly useful for async setup flows.
+ */
 SOKOL_GFX_API_DECL void sg_uninit_buffer(sg_buffer buf);
+/** @brief Return an image handle to the uninitialized state.
+ * @details This removes the initialized payload while keeping the allocated handle slot.
+ */
 SOKOL_GFX_API_DECL void sg_uninit_image(sg_image img);
+/** @brief Return a sampler handle to the uninitialized state.
+ * @details This is the sampler counterpart to `sg_uninit_buffer()`.
+ */
 SOKOL_GFX_API_DECL void sg_uninit_sampler(sg_sampler smp);
+/** @brief Return a shader handle to the uninitialized state.
+ * @details This is useful when retrying asynchronous shader setup.
+ */
 SOKOL_GFX_API_DECL void sg_uninit_shader(sg_shader shd);
+/** @brief Return a pipeline handle to the uninitialized state.
+ * @details Use this in deferred initialization pipelines that need to rebuild the resource.
+ */
 SOKOL_GFX_API_DECL void sg_uninit_pipeline(sg_pipeline pip);
+/** @brief Return a view handle to the uninitialized state.
+ * @details This removes the current view configuration while preserving handle identity.
+ */
 SOKOL_GFX_API_DECL void sg_uninit_view(sg_view view);
+/** @brief Mark a deferred buffer handle as failed.
+ * @details This lets dependent systems observe a permanent creation failure through the resource state.
+ */
 SOKOL_GFX_API_DECL void sg_fail_buffer(sg_buffer buf);
+/** @brief Mark a deferred image handle as failed.
+ * @details This is used when image initialization could not be completed successfully.
+ */
 SOKOL_GFX_API_DECL void sg_fail_image(sg_image img);
+/** @brief Mark a deferred sampler handle as failed.
+ * @details Failed handles remain queryable through the normal resource-state APIs.
+ */
 SOKOL_GFX_API_DECL void sg_fail_sampler(sg_sampler smp);
+/** @brief Mark a deferred shader handle as failed.
+ * @details This is useful when shader compilation or validation fails asynchronously.
+ */
 SOKOL_GFX_API_DECL void sg_fail_shader(sg_shader shd);
+/** @brief Mark a deferred pipeline handle as failed.
+ * @details Dependent code can detect the failure through `sg_query_pipeline_state()`.
+ */
 SOKOL_GFX_API_DECL void sg_fail_pipeline(sg_pipeline pip);
+/** @brief Mark a deferred view handle as failed.
+ * @details This finalizes a deferred view slot as unusable until reallocated.
+ */
 SOKOL_GFX_API_DECL void sg_fail_view(sg_view view);
 /** @} */
 /** @name Stats */
 /** @{ */
+/** @brief Enable internal stats collection.
+ * @details Stats collection may have a runtime cost and is typically enabled for diagnostics only.
+ */
 SOKOL_GFX_API_DECL void sg_enable_stats(void);
+/** @brief Disable internal stats collection.
+ * @details After disabling, counters stop updating until stats are enabled again.
+ */
 SOKOL_GFX_API_DECL void sg_disable_stats(void);
+/** @brief Return whether internal stats collection is enabled.
+ * @details This can be used by debug UIs to reflect the current instrumentation state.
+ */
 SOKOL_GFX_API_DECL bool sg_stats_enabled(void);
+/** @brief Return the current collected stats snapshot.
+ * @details The returned `sg_stats` structure contains backend and frame counters gathered while stats were enabled.
+ */
 SOKOL_GFX_API_DECL sg_stats sg_query_stats(void);
 /** @} */
 

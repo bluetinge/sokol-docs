@@ -2178,96 +2178,312 @@ extern sapp_desc sokol_main(int argc, char* argv[]);
 
 /** @name Core Queries */
 /** @{ */
-/** @brief Return whether sokol-app has been initialized successfully. */
+/**
+ * @brief Return whether sokol-app has been initialized successfully.
+ * @details
+ * This becomes `true` after startup completed successfully and remains true
+ * while the app runtime is active.
+ */
 SOKOL_APP_API_DECL bool sapp_isvalid(void);
-/** @brief Return the current default framebuffer width in pixels. */
+/**
+ * @brief Return the current default framebuffer width in pixels.
+ * @details
+ * The value may differ from the requested startup size and can change at any
+ * time due to resize events, DPI scaling, or fullscreen transitions.
+ */
 SOKOL_APP_API_DECL int sapp_width(void);
-/** @brief Return the current default framebuffer width as `float`. */
+/**
+ * @brief Return the current default framebuffer width as `float`.
+ * @details
+ * This is the floating-point counterpart to `sapp_width()` and is convenient
+ * when framebuffer dimensions are immediately used in math code.
+ */
 SOKOL_APP_API_DECL float sapp_widthf(void);
-/** @brief Return the current default framebuffer height in pixels. */
+/**
+ * @brief Return the current default framebuffer height in pixels.
+ * @details
+ * The value may differ from the requested startup size and can change at any
+ * time due to resize events, DPI scaling, or fullscreen transitions.
+ */
 SOKOL_APP_API_DECL int sapp_height(void);
-/** @brief Return the current default framebuffer height as `float`. */
+/**
+ * @brief Return the current default framebuffer height as `float`.
+ * @details
+ * This is the floating-point counterpart to `sapp_height()` and is convenient
+ * when framebuffer dimensions are immediately used in math code.
+ */
 SOKOL_APP_API_DECL float sapp_heightf(void);
-/** @brief Return the color pixel format of the default framebuffer. */
+/**
+ * @brief Return the color pixel format of the default framebuffer.
+ * @details
+ * This is mainly useful when creating matching `sokol_gfx.h` pipelines,
+ * attachments, or shader code paths that depend on the active swapchain format.
+ */
 SOKOL_APP_API_DECL sapp_pixel_format sapp_color_format(void);
-/** @brief Return the depth or depth-stencil pixel format of the default framebuffer. */
+/**
+ * @brief Return the depth or depth-stencil pixel format of the default framebuffer.
+ * @details
+ * Use this together with `sapp_color_format()` and `sapp_sample_count()` when
+ * preparing render state that must match the default framebuffer exactly.
+ */
 SOKOL_APP_API_DECL sapp_pixel_format sapp_depth_format(void);
-/** @brief Return the MSAA sample count of the default framebuffer. */
+/**
+ * @brief Return the MSAA sample count of the default framebuffer.
+ * @details
+ * Pipeline sample counts in `sokol_gfx.h` should match this value when
+ * rendering to the current swapchain.
+ */
 SOKOL_APP_API_DECL int sapp_sample_count(void);
-/** @brief Return whether high-DPI rendering is active. */
+/**
+ * @brief Return whether high-DPI rendering is active.
+ * @details
+ * When this returns true, the framebuffer can be larger than the logical
+ * window size so rendering should generally use framebuffer dimensions.
+ */
 SOKOL_APP_API_DECL bool sapp_high_dpi(void);
-/** @brief Return the scale factor from window pixels to framebuffer pixels. */
+/**
+ * @brief Return the scale factor from window pixels to framebuffer pixels.
+ * @details
+ * Multiply logical window-space sizes by this value to obtain framebuffer-space
+ * sizes suitable for rendering and viewport calculations.
+ */
 SOKOL_APP_API_DECL float sapp_dpi_scale(void);
 /** @} */
 /** @name Input And Window State */
 /** @{ */
-/** @brief Show or hide the on-screen keyboard on supported mobile/web platforms. */
+/**
+ * @brief Show or hide the on-screen keyboard on supported mobile/web platforms.
+ * @details
+ * On unsupported platforms this has no visible effect. It is typically used
+ * by custom text-entry UIs that are not backed by a native text field.
+ */
 SOKOL_APP_API_DECL void sapp_show_keyboard(bool show);
-/** @brief Return whether the on-screen keyboard is currently visible. */
+/**
+ * @brief Return whether the on-screen keyboard is currently visible.
+ * @details
+ * This reports the platform's current keyboard visibility state when that
+ * information is available.
+ */
 SOKOL_APP_API_DECL bool sapp_keyboard_shown(void);
-/** @brief Return whether the app is currently in fullscreen mode. */
+/**
+ * @brief Return whether the app is currently in fullscreen mode.
+ * @details
+ * This reflects the current runtime state, which may change in response to
+ * user actions or a previous `sapp_toggle_fullscreen()` call.
+ */
 SOKOL_APP_API_DECL bool sapp_is_fullscreen(void);
-/** @brief Toggle fullscreen mode on supported platforms. */
+/**
+ * @brief Toggle fullscreen mode on supported platforms.
+ * @details
+ * This requests a transition between windowed and fullscreen presentation.
+ * Exact behavior depends on platform capabilities and user permissions.
+ */
 SOKOL_APP_API_DECL void sapp_toggle_fullscreen(void);
-/** @brief Show or hide the mouse cursor. */
+/**
+ * @brief Show or hide the mouse cursor.
+ * @details
+ * This is useful for immersive mouse-look or custom cursor rendering. On some
+ * platforms, visibility may also interact with pointer-lock state.
+ */
 SOKOL_APP_API_DECL void sapp_show_mouse(bool show);
-/** @brief Return whether the mouse cursor is currently visible. */
+/**
+ * @brief Return whether the mouse cursor is currently visible.
+ * @details
+ * This reports the cursor visibility state tracked by sokol-app for the active
+ * window.
+ */
 SOKOL_APP_API_DECL bool sapp_mouse_shown(void);
-/** @brief Enable or disable mouse pointer lock. */
+/**
+ * @brief Enable or disable mouse pointer lock.
+ * @details
+ * Pointer lock is typically used for first-person camera controls where
+ * relative mouse motion is needed even when the cursor would otherwise hit the
+ * edge of the window.
+ */
 SOKOL_APP_API_DECL void sapp_lock_mouse(bool lock);
-/** @brief Return whether mouse pointer lock is currently active. */
+/**
+ * @brief Return whether mouse pointer lock is currently active.
+ * @details
+ * This reflects the runtime lock state, which may lag behind a request if the
+ * platform requires user interaction or asynchronous approval.
+ */
 SOKOL_APP_API_DECL bool sapp_mouse_locked(void);
-/** @brief Select one of the predefined mouse cursor shapes. */
+/**
+ * @brief Select one of the predefined mouse cursor shapes.
+ * @details
+ * The selected shape remains active until changed again or until a platform
+ * limitation overrides it.
+ */
 SOKOL_APP_API_DECL void sapp_set_mouse_cursor(sapp_mouse_cursor cursor);
-/** @brief Return the currently selected mouse cursor shape. */
+/**
+ * @brief Return the currently selected mouse cursor shape.
+ * @details
+ * This returns the logical cursor selection tracked by sokol-app, including
+ * any custom cursor slot currently bound with `sapp_bind_mouse_cursor_image()`.
+ */
 SOKOL_APP_API_DECL sapp_mouse_cursor sapp_get_mouse_cursor(void);
-/** @brief Bind a custom cursor image to one of the custom cursor slots. */
+/**
+ * @brief Bind a custom cursor image to one of the custom cursor slots.
+ * @details
+ * This uploads a platform cursor image described by `desc` and associates it
+ * with one of the `SAPP_MOUSECURSOR_CUSTOM_*` cursor values.
+ */
 SOKOL_APP_API_DECL sapp_mouse_cursor sapp_bind_mouse_cursor_image(sapp_mouse_cursor cursor, const sapp_image_desc* desc);
-/** @brief Restore a cursor slot to its default system appearance. */
+/**
+ * @brief Restore a cursor slot to its default system appearance.
+ * @details
+ * After unbinding, selecting that cursor value again will no longer use the
+ * previously provided custom image.
+ */
 SOKOL_APP_API_DECL void sapp_unbind_mouse_cursor_image(sapp_mouse_cursor cursor);
 /** @} */
 /** @name Lifecycle And Frame Timing */
 /** @{ */
-/** @brief Return the caller-provided `sapp_desc.user_data` pointer. */
+/**
+ * @brief Return the caller-provided `sapp_desc.user_data` pointer.
+ * @details
+ * This is a convenient way to recover application-owned state from inside code
+ * that only has access to the global sokol-app API surface.
+ */
 SOKOL_APP_API_DECL void* sapp_userdata(void);
-/** @brief Return a copy of the resolved application descriptor. */
+/**
+ * @brief Return a copy of the resolved application descriptor.
+ * @details
+ * The returned descriptor contains the values originally passed to sokol-app
+ * with default values patched in where applicable.
+ */
 SOKOL_APP_API_DECL sapp_desc sapp_query_desc(void);
-/** @brief Request a soft quit by emitting `SAPP_EVENTTYPE_QUIT_REQUESTED`. */
+/**
+ * @brief Request a soft quit by emitting `SAPP_EVENTTYPE_QUIT_REQUESTED`.
+ * @details
+ * Call this when the app should begin the normal quit-request flow instead of
+ * terminating immediately. This triggers a
+ * `SAPP_EVENTTYPE_QUIT_REQUESTED` event so the event callback can inspect the
+ * request and optionally cancel it with `sapp_cancel_quit()`.
+ *
+ * If the event callback does nothing, the application quits as usual.
+ * This is the right entry point for "Really quit?" flows where user code may
+ * need to prompt first.
+ */
 SOKOL_APP_API_DECL void sapp_request_quit(void);
-/** @brief Cancel a pending soft quit request. */
+/**
+ * @brief Cancel a pending soft quit request.
+ * @details
+ * Use this from inside the event callback after receiving
+ * `SAPP_EVENTTYPE_QUIT_REQUESTED` to keep the application alive.
+ *
+ * This is typically paired with `sapp_request_quit()` or a user clicking the
+ * platform close button, so the app can show a confirmation dialog or delay
+ * quitting until important state has been saved.
+ */
 SOKOL_APP_API_DECL void sapp_cancel_quit(void);
-/** @brief Quit immediately without sending a quit-requested event. */
+/**
+ * @brief Quit immediately without sending a quit-requested event.
+ * @details
+ * Call this when the application should shut down right away and user code
+ * should not get a chance to veto the quit. Unlike `sapp_request_quit()`,
+ * this does not emit `SAPP_EVENTTYPE_QUIT_REQUESTED`.
+ *
+ * This is useful after the user has already confirmed a quit action, or when
+ * the program must exit directly for its own control flow.
+ */
 SOKOL_APP_API_DECL void sapp_quit(void);
-/** @brief Consume the current event from inside the event callback. */
+/**
+ * @brief Consume the current event from inside the event callback.
+ * @details
+ * When supported by the current event type, this prevents the event from being
+ * forwarded to the platform's default handler.
+ */
 SOKOL_APP_API_DECL void sapp_consume_event(void);
-/** @brief Return the current frame counter. */
+/**
+ * @brief Return the current frame counter.
+ * @details
+ * The counter increments once per completed frame callback.
+ */
 SOKOL_APP_API_DECL uint64_t sapp_frame_count(void);
-/** @brief Return a smoothed frame duration in seconds. */
+/**
+ * @brief Return a smoothed frame duration in seconds.
+ * @details
+ * This is usually the best timing value for animation and simulation steps
+ * when using `sokol_app.h`.
+ */
 SOKOL_APP_API_DECL double sapp_frame_duration(void);
-/** @brief Return the unfiltered frame duration in seconds. */
+/**
+ * @brief Return the unfiltered frame duration in seconds.
+ * @details
+ * Unlike `sapp_frame_duration()`, this exposes the raw per-frame measurement
+ * without smoothing and is mainly useful for diagnostics.
+ */
 SOKOL_APP_API_DECL double sapp_frame_duration_unfiltered(void);
 /** @} */
 /** @name Clipboard And Drag-And-Drop */
 /** @{ */
-/** @brief Write a UTF-8 string into the clipboard on supported platforms. */
+/**
+ * @brief Write a UTF-8 string into the clipboard on supported platforms.
+ * @details
+ * Platform restrictions may apply, especially on the web where clipboard
+ * writes often need to happen during user input handling.
+ */
 SOKOL_APP_API_DECL void sapp_set_clipboard_string(const char* str);
-/** @brief Read the last pasted clipboard string. */
+/**
+ * @brief Read the last pasted clipboard string.
+ * @details
+ * The returned pointer is owned by sokol-app and remains valid until the next
+ * clipboard update or shutdown.
+ */
 SOKOL_APP_API_DECL const char* sapp_get_clipboard_string(void);
-/** @brief Set the native window title on supported desktop platforms. */
+/**
+ * @brief Set the native window title on supported desktop platforms.
+ * @details
+ * On platforms without a native titled window this call has no visible effect.
+ */
 SOKOL_APP_API_DECL void sapp_set_window_title(const char* str);
-/** @brief Update the native window icon on supported platforms. */
+/**
+ * @brief Update the native window icon on supported platforms.
+ * @details
+ * This usually affects desktop taskbar or titlebar presentation and may be
+ * ignored on platforms that do not expose a mutable window icon.
+ */
 SOKOL_APP_API_DECL void sapp_set_icon(const sapp_icon_desc* icon_desc);
-/** @brief Return the number of files from the latest drop event. */
+/**
+ * @brief Return the number of files from the latest drop event.
+ * @details
+ * This is typically queried while handling a file-drop event or shortly after,
+ * before another drop replaces the stored file list.
+ */
 SOKOL_APP_API_DECL int sapp_get_num_dropped_files(void);
-/** @brief Return the UTF-8 path for a dropped file by index. */
+/**
+ * @brief Return the UTF-8 path for a dropped file by index.
+ * @details
+ * The returned pointer refers to sokol-app-owned memory associated with the
+ * most recent drop operation.
+ */
 SOKOL_APP_API_DECL const char* sapp_get_dropped_file_path(int index);
 /** @} */
 /** @name Initialization And Interop */
 /** @{ */
-/** @brief Run the application manually when using `SOKOL_NO_ENTRY`. */
+/**
+ * @brief Run the application manually when using `SOKOL_NO_ENTRY`.
+ * @details
+ * In `SOKOL_NO_ENTRY` mode, provide your own platform `main()` function,
+ * populate a `sapp_desc`, and call `sapp_run()` to hand control to
+ * sokol-app.
+ *
+ * Runtime behavior differs by platform: on some targets this call returns
+ * when the app exits, on others it never returns, and on Emscripten it returns
+ * immediately while the frame loop continues asynchronously. Because of this,
+ * avoid placing important cross-platform logic after the `sapp_run()` call.
+ *
+ * @param desc Pointer to the application descriptor to run.
+ */
 SOKOL_APP_API_DECL void sapp_run(const sapp_desc* desc);
 
-/** @brief Return backend environment data for interop with `sokol_gfx.h`. */
+/**
+ * @brief Return backend environment data for interop with `sokol_gfx.h`.
+ * @details
+ * This packages the backend objects and default framebuffer attributes needed
+ * by `sg_setup()` or `sglue_environment()`.
+ */
 SOKOL_APP_API_DECL sapp_environment sapp_get_environment(void);
 /**
  * @brief Return the current frame's swapchain data.
@@ -2279,14 +2495,33 @@ SOKOL_APP_API_DECL sapp_swapchain sapp_get_swapchain(void);
 /** @} */
 /** @name Platform-Specific Helpers */
 /** @{ */
-/* EGL: get EGLDisplay object */
+/**
+ * @brief EGL: return the native `EGLDisplay` pointer.
+ * @details
+ * This is intended for low-level interop with APIs that need access to the
+ * display object created by sokol-app.
+ */
 SOKOL_APP_API_DECL const void* sapp_egl_get_display(void);
-/* EGL: get EGLContext object */
+/**
+ * @brief EGL: return the native `EGLContext` pointer.
+ * @details
+ * Use this for advanced interop scenarios that need the active EGL context.
+ */
 SOKOL_APP_API_DECL const void* sapp_egl_get_context(void);
 
-/* HTML5: enable or disable the hardwired "Leave Site?" dialog box */
+/**
+ * @brief HTML5: enable or disable the hardwired "Leave Site?" dialog box.
+ * @details
+ * This controls whether the browser warns before navigating away while the app
+ * is running.
+ */
 SOKOL_APP_API_DECL void sapp_html5_ask_leave_site(bool ask);
-/* HTML5: get byte size of a dropped file */
+/**
+ * @brief HTML5: return the byte size of a dropped file.
+ * @details
+ * This is useful for sizing a destination buffer before calling
+ * `sapp_html5_fetch_dropped_file()`.
+ */
 SOKOL_APP_API_DECL uint32_t sapp_html5_get_dropped_file_size(int index);
 /**
  * @brief HTML5: asynchronously read a dropped file into a caller-provided buffer.
@@ -2302,15 +2537,33 @@ SOKOL_APP_API_DECL uint32_t sapp_html5_get_dropped_file_size(int index);
  */
 SOKOL_APP_API_DECL void sapp_html5_fetch_dropped_file(const sapp_html5_fetch_request* request);
 
-/* macOS: get bridged pointer to macOS NSWindow */
+/**
+ * @brief macOS: return the bridged `NSWindow` pointer.
+ * @details
+ * This enables native Cocoa interop without exposing Objective-C types in the
+ * public C API.
+ */
 SOKOL_APP_API_DECL const void* sapp_macos_get_window(void);
-/* iOS: get bridged pointer to iOS UIWindow */
+/**
+ * @brief iOS: return the bridged `UIWindow` pointer.
+ * @details
+ * Use this for platform-specific UIKit integration when needed.
+ */
 SOKOL_APP_API_DECL const void* sapp_ios_get_window(void);
 
-/* D3D11: get pointer to IDXGISwapChain object */
+/**
+ * @brief D3D11: return the native `IDXGISwapChain` pointer.
+ * @details
+ * This is useful for low-level Direct3D interop or debugging integrations.
+ */
 SOKOL_APP_API_DECL const void* sapp_d3d11_get_swap_chain(void);
 
-/* Win32: get the HWND window handle */
+/**
+ * @brief Win32: return the native `HWND` window handle.
+ * @details
+ * Use this when integrating with other Win32 APIs that need the application
+ * window handle.
+ */
 SOKOL_APP_API_DECL const void* sapp_win32_get_hwnd(void);
 
 /* GL: get major version */

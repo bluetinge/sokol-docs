@@ -7,6 +7,7 @@ CSS_TAG = '<link href="docs-custom.css" rel="stylesheet" type="text/css"/>\n'
 JS_TAG = '<script type="text/javascript" src="docs-custom.js"></script>\n'
 README_ORIG = "md__r_e_a_d_m_e.html"
 README_ALIAS = "readme.html"
+README_ALT_ALIAS = "md_README.html"
 
 
 def inject_assets(html_path: Path) -> None:
@@ -17,7 +18,7 @@ def inject_assets(html_path: Path) -> None:
             return
         text = text.replace(marker, CSS_TAG + JS_TAG + marker, 1)
     if README_ORIG in text:
-        text = text.replace(README_ORIG, README_ALIAS)
+        text = text.replace(README_ORIG, README_ALT_ALIAS)
     html_path.write_text(text, encoding="utf-8")
 
 
@@ -32,6 +33,7 @@ def main() -> int:
     readme_dst = root / README_ALIAS
     if readme_src.exists():
         shutil.copyfile(readme_src, readme_dst)
+        shutil.copyfile(readme_src, root / README_ALT_ALIAS)
     return 0
 
 

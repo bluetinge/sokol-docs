@@ -132,6 +132,10 @@ extern "C" {
 
 /**
  * @brief Default logging callback for sokol headers.
+ * @details
+ * Pass this into a module's `.logger.func` field to route validation errors,
+ * warnings, and info messages to stderr or the platform debug console without
+ * writing a custom logger first.
  *
  * Assign this to a library's `logger.func` field, for example
  * `saudio_desc.logger.func = slog_func`.

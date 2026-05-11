@@ -1,14 +1,16 @@
 .docs-shortcuts {
-  margin: 0 0 1rem 0;
-  padding: 0.35rem 0 0 0;
+  margin: 0 0 0.6rem 0;
+  padding: 0;
   color: inherit;
   background: transparent;
+  font: 12px 'Lucida Grande', Geneva, Helvetica, Arial, sans-serif;
 }
 
 .docs-shortcuts__title {
-  margin: 0 0 0.55rem 0;
-  padding: 0 0.75rem;
-  font-size: 0.82rem;
+  margin: 0;
+  padding: 4px 6px 6px 2px;
+  font-size: 12px;
+  line-height: 22px;
   font-weight: 700;
   letter-spacing: 0.02em;
   text-transform: uppercase;
@@ -23,8 +25,9 @@
 .docs-shortcuts__label {
   display: block;
   margin: 0;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.78rem;
+  padding: 0 6px 0 2px;
+  font-size: 12px;
+  line-height: 22px;
   font-weight: 700;
   color: var(--page-secondary-foreground-color, inherit);
   cursor: pointer;
@@ -38,31 +41,30 @@
 .docs-shortcuts__details > summary::before {
   content: "+";
   display: inline-block;
-  width: 0.9rem;
+  width: 12px;
+  text-align: center;
   color: var(--page-secondary-foreground-color, inherit);
-  transition: transform 0.15s ease;
 }
 
 .docs-shortcuts__details[open] > summary::before {
   content: "-";
-  transform: none;
 }
 
 .docs-shortcuts__list {
   margin: 0;
-  padding: 0 0 0.5rem 0;
+  padding: 0 0 4px 0;
   list-style: none;
 }
 
 .docs-shortcuts__list li + li {
-  margin-top: 0.2rem;
+  margin-top: 0;
 }
 
 .docs-shortcuts__link {
   display: block;
   color: var(--page-link-color, var(--primary-color, inherit));
   text-decoration: none;
-  line-height: 1.35;
+  line-height: 22px;
   font-weight: 500;
 }
 
@@ -75,48 +77,40 @@
 }
 
 .docs-shortcuts__tree li {
-  padding: 0 0.75rem;
+  padding: 0;
 }
 
 .docs-shortcuts__tree-link {
-  padding: 0.1rem 0 0.1rem 0.9rem;
+  padding: 0 6px 0 20px;
   position: relative;
 }
 
 .docs-shortcuts__tree-link::before {
   content: "";
   position: absolute;
-  left: 0.2rem;
-  top: 0.72rem;
-  width: 0.35rem;
+  left: 10px;
+  top: 11px;
+  width: 6px;
   height: 1px;
   background: var(--separator-color, rgba(127, 127, 127, 0.35));
 }
 
-.docs-shortcuts__summary {
-  margin-top: 0.05rem;
-  padding-left: 0.9rem;
-  color: var(--page-secondary-foreground-color, inherit);
-  font-size: 0.78rem;
-  line-height: 1.35;
-  opacity: 0.85;
-}
-
 .docs-shortcuts__actions {
   display: block;
-  margin: 0.4rem 0 0.4rem 0;
-  padding: 0 0.75rem 0.35rem 0.75rem;
+  margin: 2px 0 4px 0;
+  padding: 0 6px 4px 20px;
 }
 
 .docs-shortcuts__actions .docs-shortcuts__link + .docs-shortcuts__link {
-  margin-top: 0.3rem;
+  margin-top: 0;
 }
 
 .docs-shortcuts__empty {
   margin: 0;
-  padding: 0 0.75rem 0.5rem 0.75rem;
+  padding: 0 6px 4px 20px;
   color: var(--page-secondary-foreground-color, inherit);
-  font-size: 0.82rem;
+  font-size: 11px;
+  line-height: 14px;
   opacity: 0.85;
 }
 
@@ -137,8 +131,64 @@ body.docs-has-shortcuts .contents h2.groupheader {
   scroll-margin-top: 1rem;
 }
 
+.docs-guides-nav {
+  position: relative;
+}
+
+.docs-guides-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 220px;
+  margin: 0;
+  padding: 6px 0;
+  list-style: none;
+  background: var(--page-background-color, #fff);
+  border: 1px solid var(--separator-color, rgba(127, 127, 127, 0.25));
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+  z-index: 1000;
+}
+
+.docs-guides-nav:hover > .docs-guides-menu,
+.docs-guides-nav:focus-within > .docs-guides-menu {
+  display: block;
+}
+
+.docs-guides-menu li {
+  margin: 0;
+  padding: 0;
+}
+
+.docs-guides-menu__link {
+  display: block;
+  padding: 6px 12px;
+  font: 12px 'Lucida Grande', Geneva, Helvetica, Arial, sans-serif;
+  line-height: 18px;
+  color: var(--page-foreground-color, inherit);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.docs-guides-menu__link:hover {
+  background: var(--page-highlight-color, rgba(127, 127, 127, 0.08));
+  text-decoration: none;
+}
+
+.docs-guides-menu__link.is-active,
+.docs-guides-menu__link[aria-current="page"] {
+  font-weight: 700;
+  color: var(--page-link-color, inherit);
+}
+
 @media (max-width: 767px) {
   .docs-shortcuts {
     margin: 0.5rem 0;
+  }
+
+  .docs-guides-menu {
+    position: static;
+    min-width: 0;
+    box-shadow: none;
   }
 }
