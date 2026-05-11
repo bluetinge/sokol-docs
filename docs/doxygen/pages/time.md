@@ -2,7 +2,7 @@
 
 Quick entry points for `sokol_time.h`.
 
-See also: [file reference](sokol__time_8h.html), [project README](md__r_e_a_d_m_e.html)
+See also: [file reference](sokol__time_8h.html), [project README](readme.html)
 
 ## Timestamps and deltas
 

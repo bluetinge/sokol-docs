@@ -19,6 +19,7 @@
     ["guide_time.html", "sokol_time.h"],
     ["guide_glue_log.html", "glue/log"]
   ];
+  const README_HREF = "readme.html";
 
   function pageName() {
     const path = window.location.pathname.split("/");
@@ -48,6 +49,19 @@
     return a;
   }
 
+  function detailsSection(label, open) {
+    const details = document.createElement("details");
+    details.className = "docs-shortcuts__details";
+    if (open) {
+      details.open = true;
+    }
+    const summary = document.createElement("summary");
+    summary.className = "docs-shortcuts__label";
+    summary.textContent = label;
+    details.appendChild(summary);
+    return details;
+  }
+
   async function loadGuideEntries(guideHref) {
     const response = await fetch(guideHref);
     if (!response.ok) return [];
@@ -72,15 +86,17 @@
   }
 
   function mountGlobalShortcuts(container) {
-    const section = el("section", "docs-shortcuts__section");
-    section.appendChild(el("div", "docs-shortcuts__label", "Header Guides"));
-    const list = el("div", "docs-shortcuts__pillbar");
+    const section = detailsSection("Header Guides", true);
+    section.classList.add("docs-shortcuts__section");
+    const list = el("ul", "docs-shortcuts__list docs-shortcuts__tree");
     guideLinks.forEach(([href, text]) => {
-      const a = link(href, text, "docs-shortcuts__pill");
+      const li = document.createElement("li");
+      const a = link(href, text, "docs-shortcuts__link docs-shortcuts__tree-link");
       if (href === currentGuideHref()) {
         a.classList.add("is-active");
       }
-      list.appendChild(a);
+      li.appendChild(a);
+      list.appendChild(li);
     });
     section.appendChild(list);
     container.appendChild(section);
@@ -91,15 +107,15 @@
     const guideHref = currentGuideHref();
     if (!guideHref) return;
 
-    const section = el("section", "docs-shortcuts__section");
-    section.appendChild(el("div", "docs-shortcuts__label", current === guideHref ? "Guide At A Glance" : "Key Entry Points"));
+    const section = detailsSection(current === guideHref ? "Guide At A Glance" : "Key Entry Points", true);
+    section.classList.add("docs-shortcuts__section");
 
     try {
       const entries = await loadGuideEntries(guideHref);
-      const list = el("ul", "docs-shortcuts__list");
+      const list = el("ul", "docs-shortcuts__list docs-shortcuts__tree");
       entries.slice(0, 14).forEach((item) => {
         const li = document.createElement("li");
-        li.appendChild(link(item.href, item.text));
+        li.appendChild(link(item.href, item.text, "docs-shortcuts__link docs-shortcuts__tree-link"));
         if (item.summary) {
           li.appendChild(el("div", "docs-shortcuts__summary", item.summary));
         }
@@ -129,13 +145,13 @@
   }
 
   function mountReferenceShortcuts(container) {
-    const section = el("section", "docs-shortcuts__section");
-    section.appendChild(el("div", "docs-shortcuts__label", "Browse"));
+    const section = detailsSection("Browse", false);
+    section.classList.add("docs-shortcuts__section");
     const list = el("ul", "docs-shortcuts__list");
     [
       ["index.html", "Docs home"],
       ["guide_headers.html", "All guides"],
-      ["md__r_e_a_d_m_e.html", "Project README"],
+      [README_HREF, "Project README"],
       ["files.html", "Reference files"]
     ].forEach(([href, text]) => {
       const li = document.createElement("li");
@@ -147,12 +163,12 @@
   }
 
   function mountTopActions(container) {
-    const section = el("section", "docs-shortcuts__section");
-    section.appendChild(el("div", "docs-shortcuts__label", "Start Here"));
+    const section = detailsSection("Start Here", true);
+    section.classList.add("docs-shortcuts__section");
     const list = el("ul", "docs-shortcuts__list");
     [
       ["guide_headers.html", "Browse all header guides", "Curated entry points by module."],
-      ["md__r_e_a_d_m_e.html", "Read the project README", "Preserved upstream overview and examples."],
+      [README_HREF, "Read the project README", "Preserved upstream overview and examples."],
       ["files.html", "Open raw file reference", "Complete generated API listing by header."]
     ].forEach(([href, text, summary]) => {
       const li = document.createElement("li");

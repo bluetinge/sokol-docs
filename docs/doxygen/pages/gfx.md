@@ -2,7 +2,7 @@
 
 Quick entry points for `sokol_gfx.h`.
 
-See also: [file reference](sokol__gfx_8h.html), [project README](md__r_e_a_d_m_e.html)
+See also: [file reference](sokol__gfx_8h.html), [project README](readme.html)
 
 ## Setup and shutdown
 

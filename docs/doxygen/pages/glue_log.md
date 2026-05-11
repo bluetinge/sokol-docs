@@ -2,7 +2,7 @@
 
 Quick entry points for the small support headers.
 
-See also: [sokol_glue.h reference](sokol__glue_8h.html), [sokol_log.h reference](sokol__log_8h.html), [project README](md__r_e_a_d_m_e.html)
+See also: [sokol_glue.h reference](sokol__glue_8h.html), [sokol_log.h reference](sokol__log_8h.html), [project README](readme.html)
 
 ## Glue helpers
 

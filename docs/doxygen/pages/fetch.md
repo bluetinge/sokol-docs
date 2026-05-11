@@ -2,7 +2,7 @@
 
 Quick entry points for `sokol_fetch.h`.
 
-See also: [file reference](sokol__fetch_8h.html), [project README](md__r_e_a_d_m_e.html)
+See also: [file reference](sokol__fetch_8h.html), [project README](readme.html)
 
 ## Setup and main loop integration
 
