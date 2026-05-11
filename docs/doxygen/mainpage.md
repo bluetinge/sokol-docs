@@ -14,6 +14,11 @@ Last updated: May 10th, 2026, for commit [5cc3e91
 
 ## Quick Start
 
+### Project overview
+
+- [Browse the original project README](md__r_e_a_d_m_e.html)
+- [Browse the curated header guides](guide_headers.html)
+
 ### Core entry points
 
 - App setup: @ref sokol_main, @ref sapp_run, @ref sapp_get_environment, @ref sapp_get_swapchain

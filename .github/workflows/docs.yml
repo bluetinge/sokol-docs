@@ -33,6 +33,9 @@ jobs:
       - name: Generate documentation
         run: doxygen Doxyfile
 
+      - name: Enhance generated navigation
+        run: python3 scripts/postprocess_doxygen.py build/html
+
       - name: Disable Jekyll
         run: touch build/html/.nojekyll
 
