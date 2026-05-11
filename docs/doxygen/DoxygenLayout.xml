@@ -154,6 +154,7 @@
     <sourcelink visible="yes"/>
     <memberdecl>
       <interfaces visible="yes" title=""/>
+      <functions visible="yes" title=""/>
       <classes visible="yes" title=""/>
       <structs visible="yes" title=""/>
       <exceptions visible="yes" title=""/>
@@ -165,7 +166,6 @@
       <sequences visible="yes" title=""/>
       <dictionaries visible="yes" title=""/>
       <enums visible="yes" title=""/>
-      <functions visible="yes" title=""/>
       <variables visible="yes" title=""/>
       <properties visible="yes" title=""/>
       <membergroups visible="yes"/>
