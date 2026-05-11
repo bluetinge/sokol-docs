@@ -103,7 +103,31 @@
 extern "C" {
 #endif
 
+/**
+ * @brief Build an `sg_environment` from the active `sokol_app.h` runtime.
+ *
+ * Use this to forward backend-specific device and default framebuffer
+ * information from `sokol_app.h` into `sg_setup()`.
+ *
+ * @return Environment data suitable for `sg_desc.environment`.
+ */
 SOKOL_GLUE_API_DECL sg_environment sglue_environment(void);
+/**
+ * @brief Build an `sg_swapchain` for the current `sokol_app.h` frame.
+ *
+ * Use this when beginning a swapchain-backed pass with `sg_begin_pass()`.
+ * The returned data is only valid for the current frame.
+ *
+ * Example:
+ * @code
+ * sg_begin_pass(&(sg_pass){
+ *     .swapchain = sglue_swapchain(),
+ *     .action = { ... }
+ * });
+ * @endcode
+ *
+ * @return Swapchain data suitable for `sg_pass.swapchain`.
+ */
 SOKOL_GLUE_API_DECL sg_swapchain sglue_swapchain(void);
 
 #ifdef __cplusplus

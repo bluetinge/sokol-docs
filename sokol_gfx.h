@@ -5104,58 +5104,127 @@ typedef struct sg_desc {
     uint32_t _end_canary;
 } sg_desc;
 
-// setup and misc functions
+/**
+ * @brief Initialize sokol-gfx with the provided descriptor.
+ *
+ * If you use `sokol_app.h`, the `sg_desc.environment` field is typically
+ * filled from `sglue_environment()`.
+ *
+ * @param desc Environment information, callbacks, and optional overrides.
+ */
 SOKOL_GFX_API_DECL void sg_setup(const sg_desc* desc);
+/** @brief Shut down sokol-gfx and release all backend resources. */
 SOKOL_GFX_API_DECL void sg_shutdown(void);
+/** @brief Return whether sokol-gfx has been initialized successfully. */
 SOKOL_GFX_API_DECL bool sg_isvalid(void);
+/** @brief Resynchronize sokol-gfx state after native backend calls. */
 SOKOL_GFX_API_DECL void sg_reset_state_cache(void);
+/** @brief Install trace hooks and return the previous hook table. */
 SOKOL_GFX_API_DECL sg_trace_hooks sg_install_trace_hooks(const sg_trace_hooks* trace_hooks);
+/** @brief Push a backend debug marker group for external GPU debuggers. */
 SOKOL_GFX_API_DECL void sg_push_debug_group(const char* name);
+/** @brief Pop the most recently pushed debug marker group. */
 SOKOL_GFX_API_DECL void sg_pop_debug_group(void);
+/** @brief Register a callback invoked after each successful `sg_commit()`. */
 SOKOL_GFX_API_DECL bool sg_add_commit_listener(sg_commit_listener listener);
+/** @brief Remove a previously registered commit listener. */
 SOKOL_GFX_API_DECL bool sg_remove_commit_listener(sg_commit_listener listener);
 
-// resource creation, destruction and updating
+/** @brief Create and initialize a buffer resource. */
 SOKOL_GFX_API_DECL sg_buffer sg_make_buffer(const sg_buffer_desc* desc);
+/** @brief Create and initialize an image resource. */
 SOKOL_GFX_API_DECL sg_image sg_make_image(const sg_image_desc* desc);
+/** @brief Create and initialize a sampler resource. */
 SOKOL_GFX_API_DECL sg_sampler sg_make_sampler(const sg_sampler_desc* desc);
+/** @brief Create and initialize a shader resource. */
 SOKOL_GFX_API_DECL sg_shader sg_make_shader(const sg_shader_desc* desc);
+/** @brief Create and initialize a pipeline resource. */
 SOKOL_GFX_API_DECL sg_pipeline sg_make_pipeline(const sg_pipeline_desc* desc);
+/** @brief Create and initialize a view resource. */
 SOKOL_GFX_API_DECL sg_view sg_make_view(const sg_view_desc* desc);
+/** @brief Destroy a buffer resource. */
 SOKOL_GFX_API_DECL void sg_destroy_buffer(sg_buffer buf);
+/** @brief Destroy an image resource. */
 SOKOL_GFX_API_DECL void sg_destroy_image(sg_image img);
+/** @brief Destroy a sampler resource. */
 SOKOL_GFX_API_DECL void sg_destroy_sampler(sg_sampler smp);
+/** @brief Destroy a shader resource. */
 SOKOL_GFX_API_DECL void sg_destroy_shader(sg_shader shd);
+/** @brief Destroy a pipeline resource. */
 SOKOL_GFX_API_DECL void sg_destroy_pipeline(sg_pipeline pip);
+/** @brief Destroy a view resource. */
 SOKOL_GFX_API_DECL void sg_destroy_view(sg_view view);
+/** @brief Replace buffer contents for a dynamic or stream buffer. */
 SOKOL_GFX_API_DECL void sg_update_buffer(sg_buffer buf, const sg_range* data);
+/** @brief Replace image contents for a dynamic or stream image. */
 SOKOL_GFX_API_DECL void sg_update_image(sg_image img, const sg_image_data* data);
+/**
+ * @brief Append data to a dynamic or stream buffer and return the byte offset.
+ *
+ * This may be called multiple times per frame. Appended chunks are 4-byte
+ * aligned in the destination buffer.
+ */
 SOKOL_GFX_API_DECL int sg_append_buffer(sg_buffer buf, const sg_range* data);
+/** @brief Return whether a buffer overflowed earlier in the current frame. */
 SOKOL_GFX_API_DECL bool sg_query_buffer_overflow(sg_buffer buf);
+/** @brief Predict whether appending `size` bytes would overflow the buffer this frame. */
 SOKOL_GFX_API_DECL bool sg_query_buffer_will_overflow(sg_buffer buf, size_t size);
 
-// render and compute functions
+/**
+ * @brief Begin a render pass or compute pass.
+ *
+ * Swapchain pass example:
+ * @code
+ * sg_begin_pass(&(sg_pass){
+ *     .swapchain = sglue_swapchain(),
+ *     .action = { ... }
+ * });
+ * @endcode
+ *
+ * Compute pass example:
+ * @code
+ * sg_begin_pass(&(sg_pass){ .compute = true });
+ * @endcode
+ */
 SOKOL_GFX_API_DECL void sg_begin_pass(const sg_pass* pass);
+/** @brief Set the viewport rectangle using integer coordinates. */
 SOKOL_GFX_API_DECL void sg_apply_viewport(int x, int y, int width, int height, bool origin_top_left);
+/** @brief Set the viewport rectangle using floating-point coordinates. */
 SOKOL_GFX_API_DECL void sg_apply_viewportf(float x, float y, float width, float height, bool origin_top_left);
+/** @brief Set the scissor rectangle using integer coordinates. */
 SOKOL_GFX_API_DECL void sg_apply_scissor_rect(int x, int y, int width, int height, bool origin_top_left);
+/** @brief Set the scissor rectangle using floating-point coordinates. */
 SOKOL_GFX_API_DECL void sg_apply_scissor_rectf(float x, float y, float width, float height, bool origin_top_left);
+/** @brief Apply a graphics or compute pipeline for subsequent work. */
 SOKOL_GFX_API_DECL void sg_apply_pipeline(sg_pipeline pip);
+/** @brief Apply resource bindings for subsequent draw or dispatch calls. */
 SOKOL_GFX_API_DECL void sg_apply_bindings(const sg_bindings* bindings);
+/** @brief Upload one uniform block for the currently applied shader stage and slot. */
 SOKOL_GFX_API_DECL void sg_apply_uniforms(int ub_slot, const sg_range* data);
+/** @brief Issue a draw call. */
 SOKOL_GFX_API_DECL void sg_draw(int base_element, int num_elements, int num_instances);
+/** @brief Issue an extended draw call with base-vertex and base-instance. */
 SOKOL_GFX_API_DECL void sg_draw_ex(int base_element, int num_elements, int num_instances, int base_vertex, int base_instance);
+/** @brief Dispatch a compute workload. */
 SOKOL_GFX_API_DECL void sg_dispatch(int num_groups_x, int num_groups_y, int num_groups_z);
+/** @brief End the current render or compute pass. */
 SOKOL_GFX_API_DECL void sg_end_pass(void);
+/** @brief Submit the current frame to the backend. */
 SOKOL_GFX_API_DECL void sg_commit(void);
 
-// getting information
+/** @brief Return a copy of the resolved setup descriptor. */
 SOKOL_GFX_API_DECL sg_desc sg_query_desc(void);
+/** @brief Return the active backend selected at compile time. */
 SOKOL_GFX_API_DECL sg_backend sg_query_backend(void);
+/** @brief Return optional backend feature flags. */
 SOKOL_GFX_API_DECL sg_features sg_query_features(void);
+/** @brief Return backend limits for optional and bounded functionality. */
 SOKOL_GFX_API_DECL sg_limits sg_query_limits(void);
+/** @brief Return capabilities for a specific pixel format. */
 SOKOL_GFX_API_DECL sg_pixelformat_info sg_query_pixelformat(sg_pixel_format fmt);
+/** @brief Compute the byte size of one image row for a pixel format. */
 SOKOL_GFX_API_DECL int sg_query_row_pitch(sg_pixel_format fmt, int width, int row_align_bytes);
+/** @brief Compute the byte size of one image surface for a pixel format. */
 SOKOL_GFX_API_DECL int sg_query_surface_pitch(sg_pixel_format fmt, int width, int height, int row_align_bytes);
 // get current state of a resource (INITIAL, ALLOC, VALID, FAILED, INVALID)
 SOKOL_GFX_API_DECL sg_resource_state sg_query_buffer_state(sg_buffer buf);

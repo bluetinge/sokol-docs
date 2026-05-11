@@ -679,27 +679,101 @@ typedef struct saudio_desc {
     saudio_logger logger;           // optional logging function (default: NO LOGGING!)
 } saudio_desc;
 
-/* setup sokol-audio */
+/**
+ * @brief Initialize the audio subsystem.
+ *
+ * Provide either a stream callback or use the push model via `saudio_push()`.
+ *
+ * Callback example:
+ * @code
+ * saudio_setup(&(saudio_desc){
+ *     .stream_cb = my_stream_cb,
+ * });
+ * @endcode
+ *
+ * Push example:
+ * @code
+ * saudio_setup(&(saudio_desc){0});
+ * @endcode
+ *
+ * @param desc Requested playback settings, callbacks, and optional overrides.
+ */
 SOKOL_AUDIO_API_DECL void saudio_setup(const saudio_desc* desc);
-/* shutdown sokol-audio */
+/**
+ * @brief Shut down the audio subsystem and release backend resources.
+ */
 SOKOL_AUDIO_API_DECL void saudio_shutdown(void);
-/* true after setup if audio backend was successfully initialized */
+/**
+ * @brief Return whether backend initialization succeeded.
+ *
+ * @return `true` if the audio backend is ready for playback.
+ */
 SOKOL_AUDIO_API_DECL bool saudio_isvalid(void);
-/* return the saudio_desc.user_data pointer */
+/**
+ * @brief Return the user data pointer from the original setup descriptor.
+ *
+ * @return Caller-provided `saudio_desc.user_data`.
+ */
 SOKOL_AUDIO_API_DECL void* saudio_userdata(void);
-/* return a copy of the original saudio_desc struct */
+/**
+ * @brief Return a copy of the resolved setup descriptor.
+ *
+ * @return Setup descriptor with defaults applied.
+ */
 SOKOL_AUDIO_API_DECL saudio_desc saudio_query_desc(void);
-/* actual sample rate */
+/**
+ * @brief Return the actual backend sample rate in Hz.
+ *
+ * @return Active sample rate.
+ */
 SOKOL_AUDIO_API_DECL int saudio_sample_rate(void);
-/* return actual backend buffer size in number of frames */
+/**
+ * @brief Return the actual backend stream buffer size in frames.
+ *
+ * @return Stream buffer size in frames.
+ */
 SOKOL_AUDIO_API_DECL int saudio_buffer_frames(void);
-/* actual number of channels */
+/**
+ * @brief Return the actual number of output channels.
+ *
+ * @return Active channel count.
+ */
 SOKOL_AUDIO_API_DECL int saudio_channels(void);
-/* return true if audio context is currently suspended (only in WebAudio backend, all other backends return false) */
+/**
+ * @brief Return whether playback is currently suspended.
+ *
+ * This is primarily meaningful on the WebAudio backend.
+ *
+ * @return `true` if the backend is suspended.
+ */
 SOKOL_AUDIO_API_DECL bool saudio_suspended(void);
-/* get current number of frames to fill packet queue */
+/**
+ * @brief Return how many frames the push-model ring buffer can currently accept.
+ *
+ * This is mainly useful for pacing `saudio_push()` from a frame loop.
+ *
+ * @return Number of frames that can be pushed right now.
+ */
 SOKOL_AUDIO_API_DECL int saudio_expect(void);
-/* push sample frames from main thread, returns number of frames actually pushed */
+/**
+ * @brief Push interleaved sample frames into the audio ring buffer.
+ *
+ * This is only used in push-model playback. For stereo output, samples are
+ * interleaved left/right in the `frames` array.
+ *
+ * Example:
+ * @code
+ * int num_frames = saudio_expect();
+ * if (num_frames > 0) {
+ *     fill_samples(sample_buffer, num_frames * saudio_channels());
+ *     saudio_push(sample_buffer, num_frames);
+ * }
+ * @endcode
+ *
+ * @param frames Pointer to interleaved 32-bit float samples.
+ * @param num_frames Number of frames to push.
+ * @return Number of frames actually written.
+ */
 SOKOL_AUDIO_API_DECL int saudio_push(const float* frames, int num_frames);
 
 #ifdef __cplusplus

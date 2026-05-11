@@ -125,15 +125,94 @@
 extern "C" {
 #endif
 
+/**
+ * @brief Initialize the high-resolution timer subsystem.
+ *
+ * Call this exactly once before using any other `stm_*` function.
+ * The setup step caches any backend-specific timing state needed for
+ * fast timestamp queries.
+ */
 SOKOL_TIME_API_DECL void stm_setup(void);
+/**
+ * @brief Return the current monotonic timestamp in backend-specific ticks.
+ *
+ * The returned value is only useful for measuring durations with the other
+ * `stm_*` helpers. It is not wall-clock time.
+ *
+ * @return Current monotonic timestamp in ticks.
+ */
 SOKOL_TIME_API_DECL uint64_t stm_now(void);
+/**
+ * @brief Compute the elapsed ticks between two timestamps.
+ *
+ * @param new_ticks A newer timestamp, usually from `stm_now()`.
+ * @param old_ticks An older timestamp, usually from `stm_now()`.
+ * @return A positive non-zero tick delta.
+ */
 SOKOL_TIME_API_DECL uint64_t stm_diff(uint64_t new_ticks, uint64_t old_ticks);
+/**
+ * @brief Compute the elapsed ticks since a starting timestamp.
+ *
+ * This is shorthand for `stm_diff(stm_now(), start_ticks)`.
+ *
+ * @param start_ticks The timestamp captured at the beginning of the interval.
+ * @return Elapsed ticks since `start_ticks`.
+ */
 SOKOL_TIME_API_DECL uint64_t stm_since(uint64_t start_ticks);
+/**
+ * @brief Measure the interval since the previous lap and store a new lap time.
+ *
+ * Pass a persistent `last_time` variable initialized to zero. The first call
+ * returns zero and stores the current time for subsequent calls.
+ *
+ * Example:
+ * @code
+ * uint64_t last = 0;
+ * uint64_t dt = stm_laptime(&last);
+ * @endcode
+ *
+ * @param last_time Pointer to the caller-owned lap timestamp.
+ * @return Ticks since the last lap, or zero on the first call.
+ */
 SOKOL_TIME_API_DECL uint64_t stm_laptime(uint64_t* last_time);
+/**
+ * @brief Snap a measured frame duration to a nearby common refresh interval.
+ *
+ * This is useful when a measured frame time is close to common display rates
+ * such as 60 Hz, 120 Hz, or 144 Hz and you want to reduce jitter.
+ * For app frame timing, prefer `sapp_frame_duration()` when using `sokol_app.h`.
+ *
+ * @param frame_ticks A measured frame duration in ticks.
+ * @return The nearest common refresh-rate duration, or `frame_ticks` unchanged.
+ */
 SOKOL_TIME_API_DECL uint64_t stm_round_to_common_refresh_rate(uint64_t frame_ticks);
+/**
+ * @brief Convert a tick duration to seconds.
+ *
+ * @param ticks Duration in sokol-time ticks.
+ * @return Duration in seconds.
+ */
 SOKOL_TIME_API_DECL double stm_sec(uint64_t ticks);
+/**
+ * @brief Convert a tick duration to milliseconds.
+ *
+ * @param ticks Duration in sokol-time ticks.
+ * @return Duration in milliseconds.
+ */
 SOKOL_TIME_API_DECL double stm_ms(uint64_t ticks);
+/**
+ * @brief Convert a tick duration to microseconds.
+ *
+ * @param ticks Duration in sokol-time ticks.
+ * @return Duration in microseconds.
+ */
 SOKOL_TIME_API_DECL double stm_us(uint64_t ticks);
+/**
+ * @brief Convert a tick duration to nanoseconds.
+ *
+ * @param ticks Duration in sokol-time ticks.
+ * @return Duration in nanoseconds.
+ */
 SOKOL_TIME_API_DECL double stm_ns(uint64_t ticks);
 
 #ifdef __cplusplus
@@ -316,4 +395,3 @@ SOKOL_API_IMPL double stm_ns(uint64_t ticks) {
     return (double)ticks;
 }
 #endif /* SOKOL_TIME_IMPL */
-

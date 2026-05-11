@@ -311,51 +311,129 @@
 extern "C" {
 #endif
 
-/*
-    sargs_allocator
-
-    Used in sargs_desc to provide custom memory-alloc and -free functions
-    to sokol_args.h. If memory management should be overridden, both the
-    alloc_fn and free_fn function must be provided (e.g. it's not valid to
-    override one function but not the other).
-*/
+/**
+ * @brief Memory allocation overrides for `sokol_args.h`.
+ *
+ * Provide both callbacks to replace the default `malloc` / `free` pair.
+ */
 typedef struct sargs_allocator {
+    /**< Allocate `size` bytes and return the resulting pointer. */
     void* (*alloc_fn)(size_t size, void* user_data);
+    /**< Free memory previously returned by `alloc_fn`. */
     void (*free_fn)(void* ptr, void* user_data);
+    /**< Opaque pointer forwarded to `alloc_fn` and `free_fn`. */
     void* user_data;
 } sargs_allocator;
 
+/**
+ * @brief Setup parameters for `sargs_setup()`.
+ */
 typedef struct sargs_desc {
+    /**< Native `argc` value. Ignored on web builds. */
     int argc;
+    /**< Native `argv` value. Ignored on web builds. */
     char** argv;
+    /**< Maximum number of parsed arguments to retain. */
     int max_args;
+    /**< Size in bytes of the internal string storage buffer. */
     int buf_size;
+    /**< Optional allocator override used for internal allocations. */
     sargs_allocator allocator;
 } sargs_desc;
 
-// setup sokol-args
+/**
+ * @brief Initialize the argument parser.
+ *
+ * On native platforms this parses `argc` / `argv`. On web builds the query
+ * string from the page URL is used instead.
+ *
+ * Example:
+ * @code
+ * sargs_setup(&(sargs_desc){
+ *     .argc = argc,
+ *     .argv = argv
+ * });
+ * @endcode
+ *
+ * @param desc Setup parameters and optional allocator override.
+ */
 SOKOL_ARGS_API_DECL void sargs_setup(const sargs_desc* desc);
-// shutdown sokol-args
+/**
+ * @brief Shut down the argument parser and release internal memory.
+ */
 SOKOL_ARGS_API_DECL void sargs_shutdown(void);
-// true between sargs_setup() and sargs_shutdown()
+/**
+ * @brief Return whether the parser is currently initialized.
+ *
+ * @return `true` after `sargs_setup()` and before `sargs_shutdown()`.
+ */
 SOKOL_ARGS_API_DECL bool sargs_isvalid(void);
-// test if an argument exists by key name
+/**
+ * @brief Test whether a key exists.
+ *
+ * @param key Key name to look up.
+ * @return `true` if the key was provided.
+ */
 SOKOL_ARGS_API_DECL bool sargs_exists(const char* key);
-// get value by key name, return empty string if key doesn't exist or an existing key has no value
+/**
+ * @brief Get the value associated with a key.
+ *
+ * @param key Key name to look up.
+ * @return The stored value, or an empty string if the key is missing or valueless.
+ */
 SOKOL_ARGS_API_DECL const char* sargs_value(const char* key);
-// get value by key name, return provided default if key doesn't exist or has no value
+/**
+ * @brief Get a key value or a fallback string.
+ *
+ * @param key Key name to look up.
+ * @param def Fallback string returned when the key is missing or valueless.
+ * @return The stored value or `def`.
+ */
 SOKOL_ARGS_API_DECL const char* sargs_value_def(const char* key, const char* def);
-// return true if val arg matches the value associated with key
+/**
+ * @brief Compare a key's value against an expected string.
+ *
+ * @param key Key name to look up.
+ * @param val Expected value string.
+ * @return `true` if the stored value equals `val`.
+ */
 SOKOL_ARGS_API_DECL bool sargs_equals(const char* key, const char* val);
-// return true if key's value is "true", "yes", "on" or an existing key has no value
+/**
+ * @brief Interpret a key as a boolean flag.
+ *
+ * Returns `true` for standalone keys and for values `"true"`, `"yes"`, or `"on"`.
+ * Returns `false` when the key is missing or has a different value.
+ *
+ * @param key Key name to evaluate.
+ * @return Boolean interpretation of the key's value.
+ */
 SOKOL_ARGS_API_DECL bool sargs_boolean(const char* key);
-// get index of arg by key name, return -1 if not exists
+/**
+ * @brief Find an argument index by key.
+ *
+ * @param key Key name to look up.
+ * @return Zero-based argument index, or `-1` if not found.
+ */
 SOKOL_ARGS_API_DECL int sargs_find(const char* key);
-// get number of parsed arguments
+/**
+ * @brief Return the number of parsed key/value pairs.
+ *
+ * @return Number of parsed arguments.
+ */
 SOKOL_ARGS_API_DECL int sargs_num_args(void);
-// get key name of argument at index, or empty string
+/**
+ * @brief Get the key at a parsed argument index.
+ *
+ * @param index Zero-based argument index.
+ * @return Key string, or an empty string for an invalid index.
+ */
 SOKOL_ARGS_API_DECL const char* sargs_key_at(int index);
-// get value string of argument at index, or empty string
+/**
+ * @brief Get the value at a parsed argument index.
+ *
+ * @param index Zero-based argument index.
+ * @return Value string, or an empty string for an invalid index or valueless key.
+ */
 SOKOL_ARGS_API_DECL const char* sargs_value_at(int index);
 
 #ifdef __cplusplus

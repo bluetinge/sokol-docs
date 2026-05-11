@@ -121,16 +121,20 @@
 extern "C" {
 #endif
 
-/*
-    Plug this function into the 'logger.func' struct item when initializing any of the sokol
-    headers. For instance for sokol_audio.h it would look like this:
-
-    saudio_setup(&(saudio_desc){
-        .logger = {
-            .func = slog_func
-        }
-    });
-*/
+/**
+ * @brief Default logging callback for sokol headers.
+ *
+ * Assign this to a library's `logger.func` field, for example
+ * `saudio_desc.logger.func = slog_func`.
+ *
+ * @param tag Short subsystem tag such as `"sg"` or `"sapp"`.
+ * @param log_level Severity level where 0 is panic and 3 is info.
+ * @param log_item Numeric library-specific log item identifier.
+ * @param message Optional human-readable message string.
+ * @param line_nr Source line inside the reporting sokol header.
+ * @param filename Optional source filename inside the reporting sokol header.
+ * @param user_data Opaque pointer from the caller-provided logger config.
+ */
 SOKOL_LOG_API_DECL void slog_func(const char* tag, uint32_t log_level, uint32_t log_item, const char* message, uint32_t line_nr, const char* filename, void* user_data);
 
 #ifdef __cplusplus

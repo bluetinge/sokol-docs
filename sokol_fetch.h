@@ -1029,7 +1029,9 @@ typedef struct sfetch_allocator_t {
     void* user_data;
 } sfetch_allocator_t;
 
-/* configuration values for sfetch_setup() */
+/**
+ * @brief Configuration values for `sfetch_setup()`.
+ */
 typedef struct sfetch_desc_t {
     uint32_t max_requests;          // max number of active requests across all channels (default: 128)
     uint32_t num_channels;          // number of channels to fetch requests in parallel (default: 1)
@@ -1038,10 +1040,14 @@ typedef struct sfetch_desc_t {
     sfetch_logger_t logger;         // optional log function overrides (default: NO LOGGING!)
 } sfetch_desc_t;
 
-/* a request handle to identify an active fetch request, returned by sfetch_send() */
+/**
+ * @brief Opaque handle that identifies an active request.
+ */
 typedef struct sfetch_handle_t { uint32_t id; } sfetch_handle_t;
 
-/* error codes */
+/**
+ * @brief Request failure reasons reported through `sfetch_response_t.error_code`.
+ */
 typedef enum sfetch_error_t {
     SFETCH_ERROR_NO_ERROR,
     SFETCH_ERROR_FILE_NOT_FOUND,
@@ -1053,7 +1059,9 @@ typedef enum sfetch_error_t {
     SFETCH_ERROR_JS_OTHER,          // check browser console for detailed error info
 } sfetch_error_t;
 
-/* the response struct passed to the response callback */
+/**
+ * @brief Response state passed to an `sfetch_request_t.callback`.
+ */
 typedef struct sfetch_response_t {
     sfetch_handle_t handle;         // request handle this response belongs to
     bool dispatched;                // true when request is in DISPATCHED state (lane has been assigned)
@@ -1072,7 +1080,13 @@ typedef struct sfetch_response_t {
     sfetch_range_t buffer;          // the user-provided buffer which holds the fetched data
 } sfetch_response_t;
 
-/* request parameters passed to sfetch_send() */
+/**
+ * @brief Request parameters passed to `sfetch_send()`.
+ *
+ * A request must provide `path` and `callback`. If `buffer` is omitted,
+ * a buffer can be bound later from the response callback when the request
+ * enters the dispatched state.
+ */
 typedef struct sfetch_request_t {
     uint32_t channel;                                // index of channel this request is assigned to (default: 0)
     const char* path;                                // filesystem path or HTTP URL (required)
@@ -1082,35 +1096,110 @@ typedef struct sfetch_request_t {
     sfetch_range_t user_data;                        // ptr/size of a POD user data block which will be memcpy'd (optional)
 } sfetch_request_t;
 
-/* setup sokol-fetch (can be called on multiple threads) */
+/**
+ * @brief Initialize a thread-local sokol-fetch context.
+ *
+ * Each calling thread gets its own independent fetch context.
+ *
+ * @param desc Configuration values and optional logger / allocator overrides.
+ */
 SOKOL_FETCH_API_DECL void sfetch_setup(const sfetch_desc_t* desc);
-/* discard a sokol-fetch context */
+/**
+ * @brief Shut down the current thread's fetch context.
+ */
 SOKOL_FETCH_API_DECL void sfetch_shutdown(void);
-/* return true if sokol-fetch has been setup */
+/**
+ * @brief Return whether the current thread's fetch context is initialized.
+ *
+ * @return `true` after `sfetch_setup()` and before `sfetch_shutdown()`.
+ */
 SOKOL_FETCH_API_DECL bool sfetch_valid(void);
-/* get the desc struct that was passed to sfetch_setup() */
+/**
+ * @brief Return a copy of the resolved setup descriptor.
+ *
+ * @return Setup descriptor with defaults applied.
+ */
 SOKOL_FETCH_API_DECL sfetch_desc_t sfetch_desc(void);
-/* return the max userdata size in number of bytes (SFETCH_MAX_USERDATA_UINT64 * sizeof(uint64_t)) */
+/**
+ * @brief Return the maximum embedded userdata size in bytes.
+ *
+ * @return Maximum request userdata payload size.
+ */
 SOKOL_FETCH_API_DECL int sfetch_max_userdata_bytes(void);
-/* return the value of the SFETCH_MAX_PATH implementation config value */
+/**
+ * @brief Return the maximum supported path length in bytes.
+ *
+ * @return Maximum UTF-8 path length including terminator.
+ */
 SOKOL_FETCH_API_DECL int sfetch_max_path(void);
 
-/* send a fetch-request, get handle to request back */
+/**
+ * @brief Enqueue a new fetch request.
+ *
+ * Example:
+ * @code
+ * sfetch_send(&(sfetch_request_t){
+ *     .path = "my_file.txt",
+ *     .callback = response_callback,
+ *     .buffer = SFETCH_RANGE(my_buffer)
+ * });
+ * @endcode
+ *
+ * @param request Request description including path and callback.
+ * @return Request handle, or an invalid handle if no request slot is available.
+ */
 SOKOL_FETCH_API_DECL sfetch_handle_t sfetch_send(const sfetch_request_t* request);
-/* return true if a handle is valid *and* the request is alive */
+/**
+ * @brief Test whether a request handle is valid and still alive.
+ *
+ * @param h Request handle returned by `sfetch_send()`.
+ * @return `true` if the request still exists.
+ */
 SOKOL_FETCH_API_DECL bool sfetch_handle_valid(sfetch_handle_t h);
-/* do per-frame work, moves requests into and out of IO threads, and invokes response-callbacks */
+/**
+ * @brief Advance the fetch state machine and invoke callbacks.
+ *
+ * Call this regularly on the same thread that created the fetch context.
+ * In frame-driven apps, this is typically called once per frame.
+ */
 SOKOL_FETCH_API_DECL void sfetch_dowork(void);
 
-/* bind a data buffer to a request (request must not currently have a buffer bound, must be called from response callback */
+/**
+ * @brief Bind a data buffer to an active request.
+ *
+ * Must be called from within the response callback.
+ *
+ * @param h Request handle.
+ * @param buffer Buffer that will receive fetched bytes.
+ */
 SOKOL_FETCH_API_DECL void sfetch_bind_buffer(sfetch_handle_t h, sfetch_range_t buffer);
-/* clear the 'buffer binding' of a request, returns previous buffer pointer (can be 0), must be called from response callback */
+/**
+ * @brief Unbind and return the currently attached buffer pointer.
+ *
+ * Must be called from within the response callback.
+ * This is mainly useful when dynamically replacing or freeing request buffers.
+ *
+ * @param h Request handle.
+ * @return Previously bound buffer pointer, or `0`.
+ */
 SOKOL_FETCH_API_DECL void* sfetch_unbind_buffer(sfetch_handle_t h);
-/* cancel a request that's in flight (will call response callback with .cancelled + .finished) */
+/**
+ * @brief Cancel an active request.
+ *
+ * @param h Request handle.
+ */
 SOKOL_FETCH_API_DECL void sfetch_cancel(sfetch_handle_t h);
-/* pause a request (will call response callback each frame with .paused) */
+/**
+ * @brief Pause an active request.
+ *
+ * @param h Request handle.
+ */
 SOKOL_FETCH_API_DECL void sfetch_pause(sfetch_handle_t h);
-/* continue a paused request */
+/**
+ * @brief Continue a previously paused request.
+ *
+ * @param h Request handle.
+ */
 SOKOL_FETCH_API_DECL void sfetch_continue(sfetch_handle_t h);
 
 #ifdef __cplusplus
