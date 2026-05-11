@@ -2289,16 +2289,16 @@ typedef enum sg_pixel_format {
  * rendering, blending, MSAA, or storage-image access.
  */
 typedef struct sg_pixelformat_info {
-    bool sample;            // pixel format can be sampled in shaders at least with nearest filtering
-    bool filter;            // pixel format can be sampled with linear filtering
-    bool render;            // pixel format can be used as render-pass attachment
-    bool blend;             // pixel format supports alpha-blending when used as render-pass attachment
-    bool msaa;              // pixel format supports MSAA when used as render-pass attachment
-    bool depth;             // pixel format is a depth format
-    bool compressed;        // true if this is a hardware-compressed format
-    bool read;              // true if format supports compute shader read access
-    bool write;             // true if format supports compute shader write access
-    int bytes_per_pixel;    // NOTE: this is 0 for compressed formats, use sg_query_row_pitch() / sg_query_surface_pitch() as alternative
+    bool sample;            /**< Can be sampled in shaders at least with nearest filtering. */
+    bool filter;            /**< Supports linear filtering when sampled. */
+    bool render;            /**< Can be used as a render-pass attachment. */
+    bool blend;             /**< Supports blending when used as a render target. */
+    bool msaa;              /**< Supports multisample rendering as an attachment format. */
+    bool depth;             /**< Is a depth or depth-stencil format. */
+    bool compressed;        /**< True for block-compressed hardware texture formats. */
+    bool read;              /**< Supports compute-shader read access as a storage image. */
+    bool write;             /**< Supports compute-shader write access as a storage image. */
+    int bytes_per_pixel;    /**< Bytes per texel for uncompressed formats, otherwise 0. */
 } sg_pixelformat_info;
 
 /**
@@ -2308,18 +2308,18 @@ typedef struct sg_pixelformat_info {
  * vary by platform and should be checked before relying on them.
  */
 typedef struct sg_features {
-    bool origin_top_left;               // framebuffer- and texture-origin is in top left corner
-    bool image_clamp_to_border;         // border color and clamp-to-border uv-wrap mode is supported
-    bool mrt_independent_blend_state;   // multiple-render-target rendering can use per-render-target blend state
-    bool mrt_independent_write_mask;    // multiple-render-target rendering can use per-render-target color write masks
-    bool compute;                       // storage buffers and compute shaders are supported
-    bool msaa_texture_bindings;         // if true, multisampled images can be bound as textures
-    bool separate_buffer_types;         // cannot use the same buffer for vertex and indices (only WebGL2)
-    bool draw_base_vertex;              // draw with (base vertex > 0) && (base_instance == 0) supported
-    bool draw_base_instance;            // draw with (base instance > 0) supported
-    bool dual_source_blending;          // dual-source-blending supported
-    bool vertexformat_int10_n2;         // SG_VERTEXFORMAT_INT10_N2 is supported
-    bool gl_texture_views;              // supports 'proper' texture views (GL 4.3+)
+    bool origin_top_left;               /**< Framebuffer and texture coordinates use a top-left origin. */
+    bool image_clamp_to_border;         /**< Border color and clamp-to-border addressing are supported. */
+    bool mrt_independent_blend_state;   /**< MRT attachments can use independent blend states. */
+    bool mrt_independent_write_mask;    /**< MRT attachments can use independent color write masks. */
+    bool compute;                       /**< Compute shaders and storage resources are supported. */
+    bool msaa_texture_bindings;         /**< Multisampled images may also be bound as textures. */
+    bool separate_buffer_types;         /**< Vertex and index usage must use different buffers on this backend. */
+    bool draw_base_vertex;              /**< `sg_draw_ex()` supports a non-zero base vertex. */
+    bool draw_base_instance;            /**< `sg_draw_ex()` supports a non-zero base instance. */
+    bool dual_source_blending;          /**< Dual-source blending is available. */
+    bool vertexformat_int10_n2;         /**< `SG_VERTEXFORMAT_INT10_N2` can be used in vertex layouts. */
+    bool gl_texture_views;              /**< Proper texture-view objects are supported on GL backends. */
 } sg_features;
 
 /**
@@ -2329,20 +2329,20 @@ typedef struct sg_features {
  * maximum image sizes, attachment counts, and bind slot counts.
  */
 typedef struct sg_limits {
-    int max_image_size_2d;          // max width/height of SG_IMAGETYPE_2D images
-    int max_image_size_cube;        // max width/height of SG_IMAGETYPE_CUBE images
-    int max_image_size_3d;          // max width/height/depth of SG_IMAGETYPE_3D images
-    int max_image_size_array;       // max width/height of SG_IMAGETYPE_ARRAY images
-    int max_image_array_layers;     // max number of layers in SG_IMAGETYPE_ARRAY images
-    int max_vertex_attrs;           // max number of vertex attributes, clamped to SG_MAX_VERTEX_ATTRIBUTES
-    int max_color_attachments;      // max number of render pass color attachments, clamped to SG_MAX_COLOR_ATTACHMENTS
-    int max_texture_bindings_per_stage; // max number of texture bindings per shader stage, clamped to SG_MAX_VIEW_BINDSLOTS
-    int max_storage_buffer_bindings_per_stage;  // max number of storage buffer bindings per shader stage, clamped to SG_MAX_VIEW_BINDSLOTS
-    int max_storage_image_bindings_per_stage;   // max number of storage image bindings per shader stage, clamped to SG_MAX_VIEW_BINDSLOTS
-    int gl_max_vertex_uniform_components;       // GL_MAX_VERTEX_UNIFORM_COMPONENTS (only on GL backends)
-    int gl_max_combined_texture_image_units;    // GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS (only on GL backends)
-    int d3d11_max_unordered_access_views;       // 8 on feature level 11.0, otherwise 32 (clamped to SG_MAX_VIEW_BINDSLOTS)
-    int vk_min_uniform_buffer_offset_alignment;
+    int max_image_size_2d;          /**< Maximum width or height for `SG_IMAGETYPE_2D` images. */
+    int max_image_size_cube;        /**< Maximum width or height for `SG_IMAGETYPE_CUBE` images. */
+    int max_image_size_3d;          /**< Maximum width, height, and depth for `SG_IMAGETYPE_3D` images. */
+    int max_image_size_array;       /**< Maximum width or height for `SG_IMAGETYPE_ARRAY` images. */
+    int max_image_array_layers;     /**< Maximum array-layer count for array images. */
+    int max_vertex_attrs;           /**< Maximum supported vertex attributes, clamped to sokol portable limits. */
+    int max_color_attachments;      /**< Maximum simultaneous color attachments in a render pass. */
+    int max_texture_bindings_per_stage; /**< Maximum sampled-texture bindings per shader stage. */
+    int max_storage_buffer_bindings_per_stage;  /**< Maximum storage-buffer bindings per shader stage. */
+    int max_storage_image_bindings_per_stage;   /**< Maximum storage-image bindings per shader stage. */
+    int gl_max_vertex_uniform_components;       /**< OpenGL-only `GL_MAX_VERTEX_UNIFORM_COMPONENTS` value. */
+    int gl_max_combined_texture_image_units;    /**< OpenGL-only `GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS` value. */
+    int d3d11_max_unordered_access_views;       /**< D3D11 UAV count, clamped to sokol binding-slot limits. */
+    int vk_min_uniform_buffer_offset_alignment; /**< Vulkan minimum offset alignment for uniform buffer bindings. */
 } sg_limits;
 
 /**
@@ -5168,11 +5168,11 @@ typedef struct sg_vulkan_environment {
  * a fully initialized `sg_environment`.
  */
 typedef struct sg_environment {
-    sg_environment_defaults defaults;
-    sg_metal_environment metal;
-    sg_d3d11_environment d3d11;
-    sg_wgpu_environment wgpu;
-    sg_vulkan_environment vulkan;
+    sg_environment_defaults defaults;   /**< Default swapchain formats and sample count used by external-framebuffer rendering. */
+    sg_metal_environment metal;         /**< Metal device and related externally managed runtime objects. */
+    sg_d3d11_environment d3d11;         /**< D3D11 device and related externally managed runtime objects. */
+    sg_wgpu_environment wgpu;           /**< WebGPU device and related externally managed runtime objects. */
+    sg_vulkan_environment vulkan;       /**< Vulkan instance, device, queue, and related externally managed runtime objects. */
 } sg_environment;
 
 /*
@@ -5258,25 +5258,25 @@ typedef struct sg_vulkan_desc {
  * apply defaults.
  */
 typedef struct sg_desc {
-    uint32_t _start_canary;
-    int buffer_pool_size;
-    int image_pool_size;
-    int sampler_pool_size;
-    int shader_pool_size;
-    int pipeline_pool_size;
-    int view_pool_size;
-    int uniform_buffer_size;        // max size of all sg_apply_uniform() calls per frame, with worst-case 256 byte alignment
-    int max_commit_listeners;       // max number of commit listener hook functions
-    bool disable_validation;        // disable validation layer even in debug mode, useful for tests
-    bool enforce_portable_limits;   // if true, enforce portable resource binding limits (SG_MAX_PORTABLE_*)
-    sg_d3d11_desc d3d11;            // d3d11-specific setup parameters
-    sg_metal_desc metal;            // metal-specific setup parameters
-    sg_wgpu_desc wgpu;              // webgpu-specific setup parameters
-    sg_vulkan_desc vulkan;          // vulkan-specific setup parameters
-    sg_allocator allocator;         // optional memory allocation hooks
-    sg_logger logger;               // optional log function override
-    sg_environment environment;     // required externally provided runtime objects and defaults
-    uint32_t _end_canary;
+    uint32_t _start_canary;         /**< Internal guard value used by sokol-gfx validation. Leave zero-initialized. */
+    int buffer_pool_size;           /**< Maximum number of live `sg_buffer` resources. */
+    int image_pool_size;            /**< Maximum number of live `sg_image` resources. */
+    int sampler_pool_size;          /**< Maximum number of live `sg_sampler` resources. */
+    int shader_pool_size;           /**< Maximum number of live `sg_shader` resources. */
+    int pipeline_pool_size;         /**< Maximum number of live `sg_pipeline` resources. */
+    int view_pool_size;             /**< Maximum number of live `sg_view` resources. */
+    int uniform_buffer_size;        /**< Per-frame uniform upload budget used by backends with staging uniform buffers. */
+    int max_commit_listeners;       /**< Maximum number of registered `sg_commit()` listener callbacks. */
+    bool disable_validation;        /**< Disables the validation layer even in debug builds. */
+    bool enforce_portable_limits;   /**< Clamps resource usage to sokol's documented portable cross-backend limits. */
+    sg_d3d11_desc d3d11;            /**< D3D11-specific setup parameters. */
+    sg_metal_desc metal;            /**< Metal-specific setup parameters. */
+    sg_wgpu_desc wgpu;              /**< WebGPU-specific setup parameters. */
+    sg_vulkan_desc vulkan;          /**< Vulkan-specific setup parameters. */
+    sg_allocator allocator;         /**< Optional custom memory allocation hooks. */
+    sg_logger logger;               /**< Optional logging callback and user-data payload. */
+    sg_environment environment;     /**< Externally created backend objects and default swapchain attributes. */
+    uint32_t _end_canary;           /**< Internal guard value used by sokol-gfx validation. Leave zero-initialized. */
 } sg_desc;
 
 /** @name Setup And Diagnostics */
